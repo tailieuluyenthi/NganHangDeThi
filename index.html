@@ -320,10 +320,29 @@ Phần 3:
         <div style="background: rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 8px; font-weight:800; font-size:1.2rem;" id="timer-display">⏱️ 45:00</div>
       </div>
 
-      <div class="card" id="online-test-card">
-        <div style="border-bottom: 2px solid var(--border); padding-bottom: 14px; margin-bottom: 20px;">
-          <label>Họ và tên Học sinh:</label>
-          <input type="text" id="student-name" placeholder="Nhập đầy đủ Họ và Tên..." style="max-width: 400px;" required>
+      <!-- FORM NHẬP THÔNG TIN BAN ĐẦU -->
+      <div class="card" id="student-info-card" style="max-width: 550px; margin: 20px auto;">
+        <h2 style="color: var(--primary); text-align: center;">📝 NHẬP THÔNG TIN THÍ SINH</h2>
+        <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Vui lòng điền đầy đủ thông tin để bắt đầu làm bài thi</p>
+        
+        <form onsubmit="confirmStudentInfo(event)">
+          <div style="margin-bottom: 16px;">
+            <label>Họ và tên Học sinh (<span style="color:red;">*</span>):</label>
+            <input type="text" id="student-name" placeholder="Ví dụ: Nguyễn Văn A" required>
+          </div>
+          <div style="margin-bottom: 20px;">
+            <label>Địa chỉ Email (<span style="color:red;">*</span>):</label>
+            <input type="email" id="student-email" placeholder="Ví dụ: nguyenvana@gmail.com" required>
+          </div>
+          <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px; font-size: 1.05rem;">🚀 Bắt Đầu Làm Bài</button>
+        </form>
+      </div>
+
+      <!-- KHUNG BÀI THI ONLINE (Ban đầu ẩn, sau khi nhập thông tin mới hiện) -->
+      <div class="card" id="online-test-card" style="display: none;">
+        <div style="border-bottom: 2px solid var(--border); padding-bottom: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; background: #e0e7ff; padding: 12px; border-radius: 8px;">
+          <div><b>Thí sinh:</b> <span id="display-student-name" style="color: var(--primary); font-weight: bold;"></span></div>
+          <div><b>Email:</b> <span id="display-student-email" style="color: var(--primary); font-weight: bold;"></span></div>
         </div>
 
         <form id="online-test-form" onsubmit="submitOnlineTest(event)">
@@ -337,7 +356,8 @@ Phần 3:
         <h1 style="color: var(--primary); font-size:2.2rem; margin-bottom: 10px;">🎉 ĐÃ HOÀN THÀNH BÀI THI</h1>
         <p id="result-student-info" style="font-size: 1.1rem; font-weight: 600;"></p>
         <div style="font-size: 3.5rem; font-weight: 800; color: var(--success); margin: 20px 0;" id="result-score">0 / 10</div>
-        <p id="result-detail-text" style="font-size: 1rem; color: var(--text-muted); margin-bottom: 20px;"></p>
+        <p id="result-detail-text" style="font-size: 1rem; color: var(--text-muted); margin-bottom: 10px;"></p>
+        <p style="color: #059669; font-weight: bold; margin-bottom: 20px;">✅ Kết quả đã được tự động lưu về hệ thống Google Sheets của giáo viên!</p>
         <button class="btn btn-secondary" onclick="window.location.href = window.location.pathname">🏠 Quay lại Trang Chủ</button>
       </div>
     </div>
@@ -383,6 +403,9 @@ Phần 3:
   </div>
 
   <script>
+    // URL GOOGLE APPS SCRIPT CỦA BẠN ĐÃ ĐƯỢC TÍCH HỢP TRỰC TIẾP VÀO ĐÂY
+    const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzy3WmIUluAgIt1W8PSrHpZ4jQGL4tpjBO8weYgdGmAwFY3aZEVgDmCIwwoaAeGEV2O8Q/exec";
+
     let questions = JSON.parse(localStorage.getItem('edu_v3_q')) || [];
     let currentImageSrc = '';
     let currentOnlineExamData = null;
@@ -395,7 +418,7 @@ Phần 3:
           const encodedData = window.location.hash.replace('#online-exam=', '');
           const jsonString = decodeURIComponent(escape(atob(encodedData)));
           currentOnlineExamData = JSON.parse(jsonString);
-          startOnlineTest(currentOnlineExamData);
+          prepareOnlineTest(currentOnlineExamData);
         } catch (e) {
           alert('Link bài kiểm tra không hợp lệ hoặc đã bị lỗi!');
         }
@@ -706,14 +729,36 @@ Phần 3:
       navigator.clipboard.writeText(text).then(() => alert('Đã sao chép đường link làm bài thi Online vào bộ nhớ tạm!'));
     }
 
-    // XỬ LÝ LÀM BÀI KIỂM TRA ONLINE (HỌC SINH)
-    function startOnlineTest(data) {
+    // XỬ LÝ CHUẨN BỊ LÀM BÀI ONLINE
+    function prepareOnlineTest(data) {
       document.getElementById('main-nav').style.display = 'none';
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.getElementById('tab-online-test').classList.add('active');
-
       document.getElementById('online-exam-title').innerText = `${data.title} (Mã đề: ${data.code})`;
-      
+    }
+
+    // XÁC NHẬN THÔNG TIN HỌC SINH VÀ BẮT ĐẦU LÀM BÀI
+    function confirmStudentInfo(e) {
+      e.preventDefault();
+      const name = document.getElementById('student-name').value.trim();
+      const email = document.getElementById('student-email').value.trim();
+
+      if (!name || !email) {
+        alert("Vui lòng nhập đầy đủ Họ tên và Email!");
+        return;
+      }
+
+      document.getElementById('display-student-name').innerText = name;
+      document.getElementById('display-student-email').innerText = email;
+
+      document.getElementById('student-info-card').style.display = 'none';
+      document.getElementById('online-test-card').style.display = 'block';
+
+      startOnlineTest(currentOnlineExamData);
+    }
+
+    // HIỂN THỊ ĐỀ THI & ĐẾM NGUỢC THỜI GIAN
+    function startOnlineTest(data) {
       // Khởi chạy đếm ngược thời gian
       let timeLeft = data.duration * 60;
       timerInterval = setInterval(() => {
@@ -776,12 +821,13 @@ Phần 3:
       if (window.renderMathInElement) renderMathInElement(container);
     }
 
-    // CHẤM ĐIỂM TỰ ĐỘNG
+    // CHẤM ĐIỂM TỰ ĐỘNG VÀ GỬI VỀ GOOGLE SHEET
     function submitOnlineTest(e) {
       if(e) e.preventDefault();
       clearInterval(timerInterval);
 
       const name = document.getElementById('student-name').value || 'Học sinh';
+      const email = document.getElementById('student-email').value || 'Chưa cung cấp';
       let totalQuestions = 0;
       let correctAnswers = 0;
 
@@ -814,11 +860,27 @@ Phần 3:
         });
       }
 
-      let score = ((correctAnswers / totalQuestions) * 10).toFixed(1);
+      let score = totalQuestions > 0 ? ((correctAnswers / totalQuestions) * 10).toFixed(1) : "0.0";
 
+      // 🚀 TỰ ĐỘNG GỬI DỮ LIỆU VỀ GOOGLE SHEET CỦA GIÁO VIÊN
+      const payload = {
+        fullname: name,
+        email: email,
+        score: `${score} / 10`,
+        examTitle: `${currentOnlineExamData.title} (Mã đề: ${currentOnlineExamData.code})`
+      };
+
+      fetch(GOOGLE_SHEET_API_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).catch(err => console.error("Lỗi gửi điểm về Google Sheets:", err));
+
+      // Hiển thị kết quả cho học sinh
       document.getElementById('online-test-card').style.display = 'none';
       document.getElementById('online-result-card').style.display = 'block';
-      document.getElementById('result-student-info').innerText = `Thí sinh: ${name} | Mã đề: ${currentOnlineExamData.code}`;
+      document.getElementById('result-student-info').innerText = `Thí sinh: ${name} (${email}) | Mã đề: ${currentOnlineExamData.code}`;
       document.getElementById('result-score').innerText = `${score} / 10 ĐIỂM`;
       document.getElementById('result-detail-text').innerText = `Bạn đã trả lời đúng ${correctAnswers} / ${totalQuestions} ý/câu hỏi.`;
     }
