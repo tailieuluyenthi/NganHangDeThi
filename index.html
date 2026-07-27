@@ -39,6 +39,17 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
     body { background-color: var(--bg); color: var(--text-main); padding-bottom: 60px; line-height: 1.6; }
 
+    /* Màn hình khóa Đăng nhập */
+    #auth-overlay {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(8px);
+      z-index: 9999; display: flex; align-items: center; justify-content: center;
+    }
+    .auth-card {
+      background: #ffffff; padding: 32px; border-radius: var(--radius);
+      width: 100%; max-width: 440px; box-shadow: var(--shadow-lg); border: 1px solid var(--border);
+    }
+
     header { 
       background: #ffffff; color: var(--text-main); padding: 1.25rem 2rem; 
       border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm);
@@ -53,12 +64,12 @@
 
     nav { 
       display: flex; gap: 8px; background: #ffffff; padding: 10px 2rem; border-bottom: 1px solid var(--border);
-      position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.02); flex-wrap: wrap;
     }
-    .nav-btn { 
-      padding: 10px 20px; border: none; background: transparent; font-weight: 600; cursor: pointer; color: var(--text-muted); border-radius: 10px; transition: all 0.2s ease; font-size: 0.92rem;
+    .nav-btn, .nav-link-btn { 
+      padding: 10px 20px; border: none; background: transparent; font-weight: 600; cursor: pointer; color: var(--text-muted); border-radius: 10px; transition: all 0.2s ease; font-size: 0.92rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
     }
-    .nav-btn:hover { background: #f1f5f9; color: var(--text-main); }
+    .nav-btn:hover, .nav-link-btn:hover { background: #f1f5f9; color: var(--text-main); }
     .nav-btn.active { background: #e0e7ff; color: var(--primary); font-weight: 700; }
 
     .container { max-width: 1150px; margin: 28px auto; padding: 0 20px; }
@@ -92,16 +103,33 @@
     .q-item { padding: 18px; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 14px; display: flex; gap: 14px; background: #ffffff; align-items: flex-start; }
     .q-content { flex: 1; }
     .q-badge { font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; background: #e0e7ff; color: var(--primary); font-weight: 700; }
-    .q-badge-type { background: #e0f2fe; color: #0369a1; }
     .q-img-preview { max-width: 280px; max-height: 180px; object-fit: contain; display: block; margin: 12px 0; border: 1px solid var(--border); border-radius: 8px; background: #fafafa; }
 
     .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); }
     .modal-content { background: white; max-width: 750px; margin: 50px auto; padding: 28px; border-radius: var(--radius); max-height: 85vh; overflow-y: auto; box-shadow: var(--shadow-lg); }
     .close-modal { float: right; font-size: 1.5rem; cursor: pointer; font-weight: bold; color: var(--text-muted); }
 
+    /* Layout Khung Đề Thi */
     .exam-paper { background: white; padding: 40px; margin-bottom: 30px; border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: var(--shadow-md); }
-    .exam-header-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; border-bottom: 2px solid #000; padding-bottom: 14px; margin-bottom: 20px; }
-    .student-info-box { border: 1px solid #000; padding: 12px; font-size: 0.88rem; border-radius: 4px; }
+    
+    /* Yêu cầu mới: Đầu trang đề thi */
+    .exam-header-grid { 
+      display: grid; 
+      grid-template-columns: 1fr 1fr; 
+      gap: 20px; 
+      border-bottom: 2px solid #000; 
+      padding-bottom: 16px; 
+      margin-bottom: 20px; 
+    }
+    .header-left { text-align: left; }
+    .header-left .school-title { font-weight: 800; font-size: 1.05rem; text-transform: uppercase; margin-bottom: 6px; }
+    .header-left .student-field { margin-top: 4px; font-size: 0.95rem; }
+
+    .header-right { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .header-right .exam-title { font-weight: 800; font-size: 1.15rem; text-transform: uppercase; }
+    .header-right .exam-sub { font-style: italic; font-size: 0.9rem; margin-top: 2px; }
+    .header-right .code-box { font-weight: 800; font-size: 1rem; margin-top: 4px; border: 1px dashed #000; padding: 2px 10px; border-radius: 4px; display: inline-block; }
+
     .part-title { font-weight: 700; font-size: 0.98rem; margin: 22px 0 12px 0; padding: 6px 12px; background-color: #f1f5f9; border-left: 4px solid var(--primary); border-radius: 0 6px 6px 0; }
     .exam-q { margin-bottom: 16px; page-break-inside: avoid; }
     .exam-opt { margin-left: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
@@ -112,10 +140,14 @@
     .online-option-label input { width: auto; margin: 0; }
     .timer-sticky { position: sticky; top: 70px; z-index: 90; background: #1e1b4b; color: white; padding: 12px 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-md); margin-bottom: 20px; }
 
-    @page { size: auto; margin: 15mm 15mm 15mm 15mm; }
+    /* Cấu hình khi IN / XUẤT FILE PDF: Xóa bỏ hoàn toàn Header, Footer, Đường dẫn URL, Thời gian */
+    @page { 
+      size: auto; 
+      margin: 0; /* Xóa lề trang để triệt tiêu thông tin góc do trình duyệt chèn vào */
+    }
     @media print {
-      nav, header, .no-print { display: none !important; }
-      body { background: white; padding: 0; margin: 0; }
+      nav, header, .no-print, #auth-overlay { display: none !important; }
+      body { background: white; padding: 15mm 15mm 15mm 15mm; margin: 0; }
       .container { max-width: 100%; margin: 0; padding: 0; }
       .exam-paper { border: none; padding: 0; margin-bottom: 0; page-break-after: always; box-shadow: none; }
       .part-title { background-color: transparent; border-left: none; text-decoration: underline; padding-left: 0; }
@@ -123,6 +155,38 @@
   </style>
 </head>
 <body>
+
+  <!-- MÀN HÌNH ĐĂNG NHẬP THIẾT BỊ (BẮT BUỘC) -->
+  <div id="auth-overlay">
+    <div class="auth-card">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <div class="logo-icon" style="margin: 0 auto 12px auto; width: 50px; height: 50px;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </div>
+        <h2 style="justify-content: center; font-size: 1.3rem;">XÁC THỰC THIẾT BỊ</h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Vui lòng nhập Key kích hoạt tương ứng với Mã Thiết Bị của bạn</p>
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <label>Mã Thiết Bị (Device ID):</label>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <input type="text" id="auth-device-id" readonly style="font-weight: bold; background: #e2e8f0; color: #1e293b; cursor: not-allowed;">
+          <button class="btn btn-secondary" style="padding: 10px 12px;" onclick="copyDeviceId()" title="Sao chép Mã">📋</button>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label>Key Kích Hoạt:</label>
+        <input type="password" id="auth-key-input" placeholder="Nhập Key từ quản trị viên..." required>
+      </div>
+
+      <button class="btn btn-success" style="width: 100%; padding: 12px; font-size: 1rem;" onclick="verifyDeviceAuth()">🔐 ĐĂNG NHẬP ỨNG DỤNG</button>
+      <div id="auth-error-msg" style="color: var(--danger); font-size: 0.85rem; text-align: center; margin-top: 12px; font-weight: 600;"></div>
+    </div>
+  </div>
 
   <!-- HEADER -->
   <header class="no-print">
@@ -139,6 +203,7 @@
         <div class="brand-subtitle">Hệ Thống Quản Lý, Trộn Đề & Kiểm Tra Online</div>
       </div>
     </div>
+    <button class="btn btn-secondary" style="font-size: 0.8rem; padding: 6px 12px;" onclick="logoutDevice()">🔒 Đăng xuất thiết bị</button>
   </header>
 
   <!-- THANH ĐIỀU HƯỚNG -->
@@ -146,6 +211,8 @@
     <button class="nav-btn active" onclick="switchTab('tab-qbank', event)">📋 Ngân Hàng Câu Hỏi</button>
     <button class="nav-btn" onclick="switchTab('tab-bulk', event)">📥 Tạo Đề Thi</button>
     <button class="nav-btn" onclick="switchTab('tab-exam', event)">🔀 Trộn & Xuất Đề Thi</button>
+    <!-- Yêu cầu mới: Thêm nút Rút gọn link liên kết ngoài -->
+    <a href="https://by.com.vn/" target="_blank" class="nav-link-btn">🔗 Rút Gọn Link Bài Tập</a>
   </nav>
 
   <div class="container">
@@ -286,7 +353,7 @@ Phần 3:
       </div>
     </div>
 
-    <!-- TAB 3: TRỘN & XUẤT ĐỀ THI (CÓ LINK ONLINE) -->
+    <!-- TAB 3: TRỘN & XUẤT ĐỀ THI -->
     <div id="tab-exam" class="tab-content">
       <div class="card no-print">
         <h2>⚙️ Cấu Hình & Trộn Đề Thi</h2>
@@ -306,7 +373,7 @@ Phần 3:
         </div>
         <div style="margin-top: 18px; display: flex; gap: 12px;">
           <button class="btn" onclick="generateExams()">🔀 Tiến Hành Trộn Đề & Tạo Link Online</button>
-          <button class="btn btn-secondary" onclick="window.print()">🖨️ In / Xuất PDF Giấy</button>
+          <button class="btn btn-secondary" onclick="window.print()">🖨️ In / Xuất PDF Giấy (Sạch thông tin góc)</button>
         </div>
       </div>
 
@@ -320,7 +387,6 @@ Phần 3:
         <div style="background: rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 8px; font-weight:800; font-size:1.2rem;" id="timer-display">⏱️ 45:00</div>
       </div>
 
-      <!-- FORM NHẬP THÔNG TIN BAN ĐẦU -->
       <div class="card" id="student-info-card" style="max-width: 550px; margin: 20px auto;">
         <h2 style="color: var(--primary); text-align: center;">📝 NHẬP THÔNG TIN THÍ SINH</h2>
         <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Vui lòng điền đầy đủ thông tin để bắt đầu làm bài thi</p>
@@ -338,7 +404,6 @@ Phần 3:
         </form>
       </div>
 
-      <!-- KHUNG BÀI THI ONLINE (Ban đầu ẩn, sau khi nhập thông tin mới hiện) -->
       <div class="card" id="online-test-card" style="display: none;">
         <div style="border-bottom: 2px solid var(--border); padding-bottom: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; background: #e0e7ff; padding: 12px; border-radius: 8px;">
           <div><b>Thí sinh:</b> <span id="display-student-name" style="color: var(--primary); font-weight: bold;"></span></div>
@@ -351,13 +416,12 @@ Phần 3:
         </form>
       </div>
 
-      <!-- KẾT QUẢ SAU KHĨ NỘP BÀI -->
       <div class="card" id="online-result-card" style="display:none; text-align: center;">
         <h1 style="color: var(--primary); font-size:2.2rem; margin-bottom: 10px;">🎉 ĐÃ HOÀN THÀNH BÀI THI</h1>
         <p id="result-student-info" style="font-size: 1.1rem; font-weight: 600;"></p>
         <div style="font-size: 3.5rem; font-weight: 800; color: var(--success); margin: 20px 0;" id="result-score">0 / 10</div>
         <p id="result-detail-text" style="font-size: 1rem; color: var(--text-muted); margin-bottom: 10px;"></p>
-        <p style="color: #059669; font-weight: bold; margin-bottom: 20px;">✅ Kết quả đã được tự động lưu về hệ thống Google Sheets của giáo viên!</p>
+        <p style="color: #059669; font-weight: bold; margin-bottom: 20px;">✅ Kết quả đã được tự động lưu về hệ thống Google Sheets!</p>
         <button class="btn btn-secondary" onclick="window.location.href = window.location.pathname">🏠 Quay lại Trang Chủ</button>
       </div>
     </div>
@@ -403,16 +467,97 @@ Phần 3:
   </div>
 
   <script>
-    // URL GOOGLE APPS SCRIPT CỦA BẠN ĐÃ ĐƯỢC TÍCH HỢP TRỰC TIẾP VÀO ĐÂY
+    // URL SHEET TÍCH HỢP
     const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzy3WmIUluAgIt1W8PSrHpZ4jQGL4tpjBO8weYgdGmAwFY3aZEVgDmCIwwoaAeGEV2O8Q/exec";
+    const AUTH_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRgxbErf7tBVABnMioAaZWLc_tCiXT1L9jlRPk9mTARyVo4ZO__mrQ1_-JwWcSmT4sYnPnWi2Kn7-1h/pub?output=csv";
 
     let questions = JSON.parse(localStorage.getItem('edu_v3_q')) || [];
     let currentImageSrc = '';
     let currentOnlineExamData = null;
     let timerInterval = null;
 
-    // KIỂM TRA LINK LÀM BÀI ONLINE KHI MỞ TRANG
+    // --- HỆ THỐNG XÁC THỰC MÃ THIẾT BỊ + KEY (SHEET) ---
+    function generateDeviceId() {
+      let nav = window.navigator;
+      let screen = window.screen;
+      let str = nav.userAgent + nav.language + screen.colorDepth + screen.width + screen.height;
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        let char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash |= 0;
+      }
+      return 'DEV-' + Math.abs(hash).toString(36).toUpperCase();
+    }
+
+    const currentDeviceId = generateDeviceId();
+
+    function initAuth() {
+      document.getElementById('auth-device-id').value = currentDeviceId;
+      const savedAuth = localStorage.getItem('edu_auth_granted');
+      if (savedAuth === currentDeviceId) {
+        document.getElementById('auth-overlay').style.display = 'none';
+      } else {
+        document.getElementById('auth-overlay').style.display = 'flex';
+      }
+    }
+
+    function copyDeviceId() {
+      navigator.clipboard.writeText(currentDeviceId).then(() => alert('Đã chép Mã Thiết Bị: ' + currentDeviceId));
+    }
+
+    async function verifyDeviceAuth() {
+      const inputKey = document.getElementById('auth-key-input').value.trim();
+      const errorEl = document.getElementById('auth-error-msg');
+      errorEl.innerText = "⏳ Đang kết nối xác thực...";
+
+      if (!inputKey) {
+        errorEl.innerText = "Vui lòng nhập Key!";
+        return;
+      }
+
+      try {
+        const response = await fetch(AUTH_CSV_URL + '&t=' + Date.now());
+        const csvText = await response.text();
+        const lines = csvText.split('\n');
+        
+        let isValid = false;
+        for (let line of lines) {
+          let cols = line.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
+          if (cols.length >= 2) {
+            let devIdInSheet = cols[0];
+            let keyInSheet = cols[1];
+            
+            if (devIdInSheet === currentDeviceId && keyInSheet === inputKey) {
+              isValid = true;
+              break;
+            }
+          }
+        }
+
+        if (isValid) {
+          localStorage.setItem('edu_auth_granted', currentDeviceId);
+          document.getElementById('auth-overlay').style.display = 'none';
+          alert('✅ Xác thực thành công! Chào mừng bạn sử dụng ứng dụng.');
+        } else {
+          errorEl.innerText = "❌ Mã thiết bị hoặc Key không đúng! Vui lòng kiểm tra lại.";
+        }
+      } catch (err) {
+        console.error(err);
+        errorEl.innerText = "⚠️ Lỗi kết nối Google Sheet xác thực!";
+      }
+    }
+
+    function logoutDevice() {
+      if (confirm('Bạn có chắc muốn đăng xuất khỏi thiết bị này?')) {
+        localStorage.removeItem('edu_auth_granted');
+        location.reload();
+      }
+    }
+
+    // --- KHỞI TẠO VÀ LÀM BÀI ---
     window.addEventListener('DOMContentLoaded', () => {
+      initAuth();
       if (window.location.hash.startsWith('#online-exam=')) {
         try {
           const encodedData = window.location.hash.replace('#online-exam=', '');
@@ -629,7 +774,7 @@ Phần 3:
       reader.readAsArrayBuffer(file);
     }
 
-    // TRỘN ĐỀ & TẠO LINK ONLINE
+    // TRỘN ĐỀ & ĐỊNH DẠNG ĐẦU TRANG THEO YÊU CẦU NÂNG CẤP
     function generateExams() {
       const schoolName = document.getElementById('info-school').value;
       const examTitle = document.getElementById('info-title').value;
@@ -649,7 +794,6 @@ Phần 3:
         let tfPool = [...pool.filter(q => q.type === 'TF')].sort(() => Math.random() - 0.5);
         let shortPool = [...pool.filter(q => q.type === 'SHORT')].sort(() => Math.random() - 0.5);
 
-        // Tạo gói dữ liệu cho Online
         let onlinePayload = {
           title: `${examTitle} - Môn ${selectedSubject}`,
           code: code,
@@ -668,27 +812,27 @@ Phần 3:
           short: shortPool.map(q => ({ text: q.text, image: q.image, correct: q.correct }))
         };
 
-        // Mã hóa gói dữ liệu thành Hash URL
         let base64Data = btoa(unescape(encodeURIComponent(JSON.stringify(onlinePayload))));
         let onlineUrl = `${window.location.origin}${window.location.pathname}#online-exam=${base64Data}`;
 
         let examHtml = `
           <div class="exam-paper">
             <div class="no-print" style="background: #e0e7ff; padding: 12px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-              <div><b>MÃ ĐỀ THI: ${code}</b> | Tải/Chia sẻ link làm bài trực tuyến:</div>
+              <div><b>MÃ ĐỀ THI: ${code}</b> | Chia sẻ link làm bài trực tuyến:</div>
               <button class="btn btn-success" onclick="copyToClipboard('${onlineUrl}')">🔗 Sao chép Link Online Mã Đề ${code}</button>
             </div>
 
+            <!-- BỐ CỤC ĐẦU TRANG ĐỀ THI THEO YÊU CẦU MỚI -->
             <div class="exam-header-grid">
-              <div>
-                <div style="font-weight:bold;">${schoolName.toUpperCase()}</div>
-                <div style="font-weight:bold; font-size:1.1rem; margin-top:4px;">${examTitle.toUpperCase()}</div>
-                <div style="font-style:italic;">Môn thi: ${selectedSubject} - Thời gian: ${duration} phút</div>
+              <div class="header-left">
+                <div class="school-title">${schoolName}</div>
+                <div class="student-field"><b>Họ & Tên:</b> ....................................</div>
+                <div class="student-field"><b>Lớp:</b> .............................................</div>
               </div>
-              <div class="student-info-box">
-                <div><b>Họ và tên TS:</b> ....................................................</div>
-                <div style="margin-top:4px;"><b>Lớp:</b> ....................... <b>SBD:</b> ...........................</div>
-                <div style="margin-top:4px;"><b>MÃ ĐỀ THI: <span style="font-size:1.1rem;">${code}</span></b></div>
+              <div class="header-right">
+                <div class="exam-title">${examTitle}</div>
+                <div class="exam-sub">Môn: <b>${selectedSubject}</b> - Thời gian: <b>${duration} phút</b></div>
+                <div class="code-box">MÃ ĐỀ: ${code}</div>
               </div>
             </div>
         `;
@@ -729,7 +873,6 @@ Phần 3:
       navigator.clipboard.writeText(text).then(() => alert('Đã sao chép đường link làm bài thi Online vào bộ nhớ tạm!'));
     }
 
-    // XỬ LÝ CHUẨN BỊ LÀM BÀI ONLINE
     function prepareOnlineTest(data) {
       document.getElementById('main-nav').style.display = 'none';
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -737,7 +880,6 @@ Phần 3:
       document.getElementById('online-exam-title').innerText = `${data.title} (Mã đề: ${data.code})`;
     }
 
-    // XÁC NHẬN THÔNG TIN HỌC SINH VÀ BẮT ĐẦU LÀM BÀI
     function confirmStudentInfo(e) {
       e.preventDefault();
       const name = document.getElementById('student-name').value.trim();
@@ -757,9 +899,7 @@ Phần 3:
       startOnlineTest(currentOnlineExamData);
     }
 
-    // HIỂN THỊ ĐỀ THI & ĐẾM NGUỢC THỜI GIAN
     function startOnlineTest(data) {
-      // Khởi chạy đếm ngược thời gian
       let timeLeft = data.duration * 60;
       timerInterval = setInterval(() => {
         let m = Math.floor(timeLeft / 60);
@@ -773,7 +913,6 @@ Phần 3:
         timeLeft--;
       }, 1000);
 
-      // Render danh sách câu hỏi
       const container = document.getElementById('online-questions-container');
       container.innerHTML = '';
 
@@ -821,7 +960,6 @@ Phần 3:
       if (window.renderMathInElement) renderMathInElement(container);
     }
 
-    // CHẤM ĐIỂM TỰ ĐỘNG VÀ GỬI VỀ GOOGLE SHEET
     function submitOnlineTest(e) {
       if(e) e.preventDefault();
       clearInterval(timerInterval);
@@ -831,7 +969,6 @@ Phần 3:
       let totalQuestions = 0;
       let correctAnswers = 0;
 
-      // Chấm Phần 1
       if (currentOnlineExamData.mcq) {
         currentOnlineExamData.mcq.forEach((q, idx) => {
           totalQuestions++;
@@ -840,7 +977,6 @@ Phần 3:
         });
       }
 
-      // Chấm Phần 2
       if (currentOnlineExamData.tf) {
         currentOnlineExamData.tf.forEach((q, idx) => {
           q.items.forEach((it, i) => {
@@ -851,7 +987,6 @@ Phần 3:
         });
       }
 
-      // Chấm Phần 3
       if (currentOnlineExamData.short) {
         currentOnlineExamData.short.forEach((q, idx) => {
           totalQuestions++;
@@ -862,7 +997,6 @@ Phần 3:
 
       let score = totalQuestions > 0 ? ((correctAnswers / totalQuestions) * 10).toFixed(1) : "0.0";
 
-      // 🚀 TỰ ĐỘNG GỬI DỮ LIỆU VỀ GOOGLE SHEET CỦA GIÁO VIÊN
       const payload = {
         fullname: name,
         email: email,
@@ -877,7 +1011,6 @@ Phần 3:
         body: JSON.stringify(payload)
       }).catch(err => console.error("Lỗi gửi điểm về Google Sheets:", err));
 
-      // Hiển thị kết quả cho học sinh
       document.getElementById('online-test-card').style.display = 'none';
       document.getElementById('online-result-card').style.display = 'block';
       document.getElementById('result-student-info').innerText = `Thí sinh: ${name} (${email}) | Mã đề: ${currentOnlineExamData.code}`;
