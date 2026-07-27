@@ -42,7 +42,7 @@
     /* Màn hình khóa Đăng nhập */
     #auth-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(8px);
+      background: rgba(15, 23, 42, 0.96); backdrop-filter: blur(8px);
       z-index: 9999; display: flex; align-items: center; justify-content: center;
     }
     .auth-card {
@@ -112,7 +112,6 @@
     /* Layout Khung Đề Thi */
     .exam-paper { background: white; padding: 40px; margin-bottom: 30px; border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: var(--shadow-md); }
     
-    /* Yêu cầu mới: Đầu trang đề thi */
     .exam-header-grid { 
       display: grid; 
       grid-template-columns: 1fr 1fr; 
@@ -138,12 +137,11 @@
     .online-option-label { display: flex; align-items: center; gap: 10px; background: #f8fafc; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; margin-top: 6px; }
     .online-option-label:hover { background: #f1f5f9; }
     .online-option-label input { width: auto; margin: 0; }
-    .timer-sticky { position: sticky; top: 70px; z-index: 90; background: #1e1b4b; color: white; padding: 12px 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-md); margin-bottom: 20px; }
+    .timer-sticky { position: sticky; top: 10px; z-index: 90; background: #1e1b4b; color: white; padding: 12px 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-md); margin-bottom: 20px; }
 
-    /* Cấu hình khi IN / XUẤT FILE PDF: Xóa bỏ hoàn toàn Header, Footer, Đường dẫn URL, Thời gian */
     @page { 
       size: auto; 
-      margin: 0; /* Xóa lề trang để triệt tiêu thông tin góc do trình duyệt chèn vào */
+      margin: 0;
     }
     @media print {
       nav, header, .no-print, #auth-overlay { display: none !important; }
@@ -156,7 +154,7 @@
 </head>
 <body>
 
-  <!-- MÀN HÌNH ĐĂNG NHẬP THIẾT BỊ (BẮT BUỘC) -->
+  <!-- MÀN HÌNH ĐĂNG NHẬP THIẾT BỊ (CHỈ DÙNG CHO QUẢN TRỊ / GIÁO VIÊN) -->
   <div id="auth-overlay">
     <div class="auth-card">
       <div style="text-align: center; margin-bottom: 20px;">
@@ -166,8 +164,8 @@
             <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
           </svg>
         </div>
-        <h2 style="justify-content: center; font-size: 1.3rem;">XÁC THỰC THIẾT BỊ</h2>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Vui lòng nhập Key kích hoạt tương ứng với Mã Thiết Bị của bạn</p>
+        <h2 style="justify-content: center; font-size: 1.3rem;">XÁC THỰC THIẾT BỊ QUẢN TRỊ</h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Vui lòng nhập Key kích hoạt tương ứng để sử dụng hệ thống quản lý đề</p>
       </div>
 
       <div style="margin-bottom: 14px;">
@@ -183,13 +181,13 @@
         <input type="password" id="auth-key-input" placeholder="Nhập Key từ quản trị viên..." required>
       </div>
 
-      <button class="btn btn-success" style="width: 100%; padding: 12px; font-size: 1rem;" onclick="verifyDeviceAuth()">🔐 ĐĂNG NHẬP ỨNG DỤNG</button>
+      <button class="btn btn-success" style="width: 100%; padding: 12px; font-size: 1rem;" onclick="verifyDeviceAuth()">🔐 ĐĂNG NHẬP HỆ THỐNG</button>
       <div id="auth-error-msg" style="color: var(--danger); font-size: 0.85rem; text-align: center; margin-top: 12px; font-weight: 600;"></div>
     </div>
   </div>
 
   <!-- HEADER -->
-  <header class="no-print">
+  <header class="no-print" id="main-header">
     <div class="brand-container">
       <div class="logo-icon">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -211,7 +209,6 @@
     <button class="nav-btn active" onclick="switchTab('tab-qbank', event)">📋 Ngân Hàng Câu Hỏi</button>
     <button class="nav-btn" onclick="switchTab('tab-bulk', event)">📥 Tạo Đề Thi</button>
     <button class="nav-btn" onclick="switchTab('tab-exam', event)">🔀 Trộn & Xuất Đề Thi</button>
-    <!-- Yêu cầu mới: Thêm nút Rút gọn link liên kết ngoài -->
     <a href="https://by.com.vn/" target="_blank" class="nav-link-btn">🔗 Rút Gọn Link Bài Tập</a>
   </nav>
 
@@ -494,11 +491,33 @@ Phần 3:
 
     function initAuth() {
       document.getElementById('auth-device-id').value = currentDeviceId;
+      
+      // KIỂM TRA NẾU VÀO LINK BÀI THI ONLINE TRỰC TIẾP -> MỞ HOÀN TOÀN, KHÔNG HỎI KEY
+      if (window.location.hash.startsWith('#online-exam=')) {
+        document.getElementById('auth-overlay').style.display = 'none';
+        checkOnlineMode();
+        return;
+      }
+
+      // NẾU VÀO TRANG QUẢN TRỊ ĐỀ THI -> KIỂM TRA KEY THIẾT BỊ
       const savedAuth = localStorage.getItem('edu_auth_granted');
       if (savedAuth === currentDeviceId) {
         document.getElementById('auth-overlay').style.display = 'none';
       } else {
         document.getElementById('auth-overlay').style.display = 'flex';
+      }
+    }
+
+    function checkOnlineMode() {
+      if (window.location.hash.startsWith('#online-exam=')) {
+        try {
+          const encodedData = window.location.hash.replace('#online-exam=', '');
+          const jsonString = decodeURIComponent(escape(atob(encodedData)));
+          currentOnlineExamData = JSON.parse(jsonString);
+          prepareOnlineTest(currentOnlineExamData);
+        } catch (e) {
+          alert('Link bài kiểm tra không hợp lệ hoặc đã bị lỗi!');
+        }
       }
     }
 
@@ -538,7 +557,7 @@ Phần 3:
         if (isValid) {
           localStorage.setItem('edu_auth_granted', currentDeviceId);
           document.getElementById('auth-overlay').style.display = 'none';
-          alert('✅ Xác thực thành công! Chào mừng bạn sử dụng ứng dụng.');
+          alert('✅ Xác thực thiết bị thành công!');
         } else {
           errorEl.innerText = "❌ Mã thiết bị hoặc Key không đúng! Vui lòng kiểm tra lại.";
         }
@@ -558,16 +577,6 @@ Phần 3:
     // --- KHỞI TẠO VÀ LÀM BÀI ---
     window.addEventListener('DOMContentLoaded', () => {
       initAuth();
-      if (window.location.hash.startsWith('#online-exam=')) {
-        try {
-          const encodedData = window.location.hash.replace('#online-exam=', '');
-          const jsonString = decodeURIComponent(escape(atob(encodedData)));
-          currentOnlineExamData = JSON.parse(jsonString);
-          prepareOnlineTest(currentOnlineExamData);
-        } catch (e) {
-          alert('Link bài kiểm tra không hợp lệ hoặc đã bị lỗi!');
-        }
-      }
     });
 
     function saveData() {
@@ -774,7 +783,6 @@ Phần 3:
       reader.readAsArrayBuffer(file);
     }
 
-    // TRỘN ĐỀ & ĐỊNH DẠNG ĐẦU TRANG THEO YÊU CẦU NÂNG CẤP
     function generateExams() {
       const schoolName = document.getElementById('info-school').value;
       const examTitle = document.getElementById('info-title').value;
@@ -818,11 +826,10 @@ Phần 3:
         let examHtml = `
           <div class="exam-paper">
             <div class="no-print" style="background: #e0e7ff; padding: 12px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-              <div><b>MÃ ĐỀ THI: ${code}</b> | Chia sẻ link làm bài trực tuyến:</div>
+              <div><b>MÃ ĐỀ THI: ${code}</b> | Chia sẻ link làm bài trực tuyến (Mở tự do):</div>
               <button class="btn btn-success" onclick="copyToClipboard('${onlineUrl}')">🔗 Sao chép Link Online Mã Đề ${code}</button>
             </div>
 
-            <!-- BỐ CỤC ĐẦU TRANG ĐỀ THI THEO YÊU CẦU MỚI -->
             <div class="exam-header-grid">
               <div class="header-left">
                 <div class="school-title">${schoolName}</div>
@@ -870,11 +877,12 @@ Phần 3:
     }
 
     function copyToClipboard(text) {
-      navigator.clipboard.writeText(text).then(() => alert('Đã sao chép đường link làm bài thi Online vào bộ nhớ tạm!'));
+      navigator.clipboard.writeText(text).then(() => alert('Đã sao chép đường link làm bài thi Online!'));
     }
 
     function prepareOnlineTest(data) {
       document.getElementById('main-nav').style.display = 'none';
+      document.getElementById('main-header').style.display = 'none';
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.getElementById('tab-online-test').classList.add('active');
       document.getElementById('online-exam-title').innerText = `${data.title} (Mã đề: ${data.code})`;
