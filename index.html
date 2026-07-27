@@ -470,7 +470,7 @@ Phần 3:
   </div>
 
   <script>
-    // URL SHEET TÍCH HỢP
+    // URL SHEET TÍCH HỢP MẶC ĐỊNH & CSV XÁC THỰC
     const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzy3WmIUluAgIt1W8PSrHpZ4jQGL4tpjBO8weYgdGmAwFY3aZEVgDmCIwwoaAeGEV2O8Q/exec";
     const AUTH_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRgxbErf7tBVABnMioAaZWLc_tCiXT1L9jlRPk9mTARyVo4ZO__mrQ1_-JwWcSmT4sYnPnWi2Kn7-1h/pub?output=csv";
 
@@ -478,6 +478,7 @@ Phần 3:
     let currentImageSrcs = [];
     let currentOnlineExamData = null;
     let timerInterval = null;
+    let currentTeacherIdInExam = "";
 
     // Helper: Chuẩn hóa mảng ảnh (Hỗ trợ cấu trúc cũ lưu 1 chuỗi string & mới lưu Array)
     function parseImages(imgData) {
@@ -513,7 +514,7 @@ Phần 3:
       document.getElementById('auth-device-id').value = currentDeviceId;
       
       // KIỂM TRA NẾU VÀO LINK BÀI THI ONLINE TRỰC TIẾP -> MỞ HOÀN TOÀN, KHÔNG HỎI KEY
-      if (window.location.hash.startsWith('#online-exam=')) {
+      if (window.location.hash.includes('#online-exam=')) {
         document.getElementById('auth-overlay').style.display = 'none';
         checkOnlineMode();
         return;
@@ -529,9 +530,16 @@ Phần 3:
     }
 
     function checkOnlineMode() {
-      if (window.location.hash.startsWith('#online-exam=')) {
+      if (window.location.hash.includes('#online-exam=')) {
         try {
-          const encodedData = window.location.hash.replace('#online-exam=', '');
+          const hashStr = window.location.hash.replace('#online-exam=', '');
+          const parts = hashStr.split('&teacherId=');
+          const encodedData = parts[0];
+          
+          if (parts[1]) {
+            currentTeacherIdInExam = decodeURIComponent(parts[1]);
+          }
+
           const jsonString = decodeURIComponent(escape(atob(encodedData)));
           currentOnlineExamData = JSON.parse(jsonString);
           prepareOnlineTest(currentOnlineExamData);
@@ -846,7 +854,9 @@ Phần 3:
         };
 
         let base64Data = btoa(unescape(encodeURIComponent(JSON.stringify(onlinePayload))));
-        let onlineUrl = `${window.location.origin}${window.location.pathname}#online-exam=${base64Data}`;
+        
+        // ĐÍNH KÈM TEACHER ID VÀO LINK LÀM BÀI ĐỂ PHÂN LUỒNG BẢNG ĐIỂM
+        let onlineUrl = `${window.location.origin}${window.location.pathname}#online-exam=${base64Data}&teacherId=${encodeURIComponent(currentDeviceId)}`;
 
         let examHtml = `
           <div class="exam-paper">
@@ -993,7 +1003,8 @@ Phần 3:
       if (window.renderMathInElement) renderMathInElement(container);
     }
 
-    function submitOnlineTest(e) {
+    // --- TỰ ĐỘNG TRA CỨU BẢNG ĐIỂM CỦA GIÁO VIÊN VÀ NỘP BÀI ---
+    async function submitOnlineTest(e) {
       if(e) e.preventDefault();
       clearInterval(timerInterval);
 
@@ -1037,7 +1048,29 @@ Phần 3:
         examTitle: `${currentOnlineExamData.title} (Mã đề: ${currentOnlineExamData.code})`
       };
 
-      fetch(GOOGLE_SHEET_API_URL, {
+      // PHÂN LUỒNG SHEET GOOGLE
+      let targetSubmitApi = GOOGLE_SHEET_API_URL; // Mặc định nếu không tìm thấy GV
+
+      if (currentTeacherIdInExam) {
+        try {
+          const resp = await fetch(AUTH_CSV_URL + '&t=' + Date.now());
+          const csvText = await resp.text();
+          const lines = csvText.split('\n');
+          for (let line of lines) {
+            let cols = line.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
+            // Cột A: Teacher ID | Cột B: Key | Cột C: URL Sheet API
+            if (cols.length >= 3 && cols[0] === currentTeacherIdInExam && cols[2].startsWith('http')) {
+              targetSubmitApi = cols[2];
+              break;
+            }
+          }
+        } catch (err) {
+          console.error("Lỗi tra cứu Google Sheet GV:", err);
+        }
+      }
+
+      // Gửi điểm về Sheet
+      fetch(targetSubmitApi, {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
