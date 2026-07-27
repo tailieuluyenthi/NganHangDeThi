@@ -103,7 +103,8 @@
     .q-item { padding: 18px; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 14px; display: flex; gap: 14px; background: #ffffff; align-items: flex-start; }
     .q-content { flex: 1; }
     .q-badge { font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; background: #e0e7ff; color: var(--primary); font-weight: 700; }
-    .q-img-preview { max-width: 280px; max-height: 180px; object-fit: contain; display: block; margin: 12px 0; border: 1px solid var(--border); border-radius: 8px; background: #fafafa; }
+    .q-img-preview { max-width: 280px; max-height: 180px; object-fit: contain; display: inline-block; margin: 8px 8px 8px 0; border: 1px solid var(--border); border-radius: 8px; background: #fafafa; }
+    .q-img-container { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
 
     .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); }
     .modal-content { background: white; max-width: 750px; margin: 50px auto; padding: 28px; border-radius: var(--radius); max-height: 85vh; overflow-y: auto; box-shadow: var(--shadow-lg); }
@@ -209,6 +210,7 @@
     <button class="nav-btn active" onclick="switchTab('tab-qbank', event)">📋 Ngân Hàng Câu Hỏi</button>
     <button class="nav-btn" onclick="switchTab('tab-bulk', event)">📥 Tạo Đề Thi</button>
     <button class="nav-btn" onclick="switchTab('tab-exam', event)">🔀 Trộn & Xuất Đề Thi</button>
+    <a href="https://postimages.org/" target="_blank" class="nav-link-btn">🖼️ Link Ảnh</a>
     <a href="https://by.com.vn/" target="_blank" class="nav-link-btn">🔗 Rút Gọn Link Bài Tập</a>
   </nav>
 
@@ -257,7 +259,7 @@
               <label style="margin-top:0; color: var(--primary);">📷 Xem trước ảnh:</label>
               <button type="button" class="btn btn-danger" style="padding: 4px 10px; font-size: 0.78rem;" onclick="clearImage()">❌ Xóa ảnh</button>
             </div>
-            <img id="img-preview" src="" class="q-img-preview" alt="Xem trước">
+            <div id="img-preview-wrapper" class="q-img-container"></div>
             <span id="img-status" style="font-size: 0.82rem; color: var(--text-muted);"></span>
           </div>
 
@@ -321,7 +323,9 @@
         <textarea id="bulk-text" style="height: 380px; margin-top: 16px; font-family: monospace; font-size:0.88rem;" placeholder="Môn: Địa Lý
 
 Phần 1: Trắc nghiệm
-Câu 1: Thủ đồ của Việt Nam là gì?
+Câu 1: Cho bản đồ bên dưới:
+Ảnh 1: https://i.postimg.cc/abc.jpg
+Ảnh 2: https://i.postimg.cc/xyz.jpg
 A. Hà Nội
 B. TP.HCM
 C. Đà Nẵng
@@ -429,13 +433,15 @@ Phần 3:
   <div id="guide-modal" class="modal">
     <div class="modal-content">
       <span class="close-modal" onclick="closeGuideModal()">&times;</span>
-      <h3 style="margin-bottom: 16px; color: var(--primary);">📖 Cú Pháp Nhập Hàng Loạt Chuẩn 3 Phần</h3>
+      <h3 style="margin-bottom: 16px; color: var(--primary);">📖 Cú Pháp Nhập Hàng Loạt Chuẩn 3 Phần (Cho Phép Nhiều Ảnh)</h3>
       <pre style="background:#f8fafc; padding:14px; border-radius:8px; font-size:0.82rem; border:1px solid var(--border);">
 Môn: Địa Lý
 
 Phần 1: Trắc nghiệm
-Câu 1: Thủ đô của Việt Nam là gì?
-A. Hà Nội
+Câu 1: Dựa vào các sơ đồ bên dưới:
+Ảnh 1: https://i.postimg.cc/link1.jpg
+Ảnh 2: https://i.postimg.cc/link2.jpg
+A. Thủ đô Hà Nội
 B. TP.HCM
 C. Đà Nẵng
 D. Cần Thơ
@@ -469,9 +475,23 @@ Phần 3:
     const AUTH_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRgxbErf7tBVABnMioAaZWLc_tCiXT1L9jlRPk9mTARyVo4ZO__mrQ1_-JwWcSmT4sYnPnWi2Kn7-1h/pub?output=csv";
 
     let questions = JSON.parse(localStorage.getItem('edu_v3_q')) || [];
-    let currentImageSrc = '';
+    let currentImageSrcs = [];
     let currentOnlineExamData = null;
     let timerInterval = null;
+
+    // Helper: Chuẩn hóa mảng ảnh (Hỗ trợ cấu trúc cũ lưu 1 chuỗi string & mới lưu Array)
+    function parseImages(imgData) {
+      if (!imgData) return [];
+      if (Array.isArray(imgData)) return imgData;
+      return [imgData];
+    }
+
+    function renderImageHtml(images) {
+      const imgArr = parseImages(images);
+      if (imgArr.length === 0) return '';
+      let imgsHtml = imgArr.map(src => `<img src="${src}" class="q-img-preview">`).join('');
+      return `<div class="q-img-container">${imgsHtml}</div>`;
+    }
 
     // --- HỆ THỐNG XÁC THỰC MÃ THIẾT BỊ + KEY (SHEET) ---
     function generateDeviceId() {
@@ -601,28 +621,30 @@ Phần 3:
       if (!file) return;
       const reader = new FileReader();
       reader.onload = function(evt) {
-        currentImageSrc = evt.target.result;
-        displayImagePreview(currentImageSrc, 'Ảnh tải lên từ máy tính');
+        currentImageSrcs = [evt.target.result];
+        displayImagePreview(currentImageSrcs, 'Ảnh tải lên từ máy tính');
       };
       reader.readAsDataURL(file);
     }
 
     function handleUrlImageInput(url) {
       if (!url.trim()) return;
-      currentImageSrc = url.trim();
-      displayImagePreview(currentImageSrc, 'Link ảnh');
+      currentImageSrcs = [url.trim()];
+      displayImagePreview(currentImageSrcs, 'Link ảnh');
     }
 
-    function displayImagePreview(src, statusText) {
-      document.getElementById('img-preview').src = src;
+    function displayImagePreview(images, statusText) {
+      const wrapper = document.getElementById('img-preview-wrapper');
+      wrapper.innerHTML = images.map(src => `<img src="${src}" class="q-img-preview">`).join('');
       document.getElementById('img-status').innerText = statusText;
       document.getElementById('img-preview-container').style.display = 'block';
     }
 
     function clearImage() {
-      currentImageSrc = '';
+      currentImageSrcs = [];
       document.getElementById('q-img-file').value = '';
       document.getElementById('q-img-url').value = '';
+      document.getElementById('img-preview-wrapper').innerHTML = '';
       document.getElementById('img-preview-container').style.display = 'none';
     }
 
@@ -638,7 +660,7 @@ Phần 3:
         level: document.getElementById('q-level').value,
         type: type,
         text: document.getElementById('q-text').value,
-        image: currentImageSrc
+        image: currentImageSrcs
       };
 
       if (type === 'MCQ') {
@@ -680,7 +702,7 @@ Phần 3:
         item.className = 'q-item';
         let detail = q.type === 'MCQ' ? `A. ${q.options.A} | B. ${q.options.B} | C. ${q.options.C} | D. ${q.options.D} <br><b>ĐA: ${q.correct}</b>` : 
                     (q.type === 'TF' ? q.items.map((it, i) => `Ý ${String.fromCharCode(97+i)}: ${it.text} (${it.ans})`).join(' | ') : `<b>Đáp án:</b> ${q.correct}`);
-        let imgTag = q.image ? `<img src="${q.image}" class="q-img-preview">` : '';
+        let imgTag = renderImageHtml(q.image);
 
         item.innerHTML = `
           <input type="checkbox" class="q-checkbox" value="${q.id}" style="width:18px; height:18px; margin-top:4px;">
@@ -747,10 +769,13 @@ Phần 3:
             let qMatch = lines[0].match(/^Câu\s*(\d+)[:.](.+)$/i);
             if (!qMatch) return;
             let qNo = qMatch[1].trim(), text = qMatch[2].trim();
-            let optA='', optB='', optC='', optD='', imgUrl = '', tfItems = [];
+            let optA='', optB='', optC='', optD='', imgUrls = [], tfItems = [];
 
             lines.forEach(l => {
-              if (l.match(/^(Ảnh|Url)[:]/i)) imgUrl = l.replace(/^(Ảnh|Url)[:]/i, '').trim();
+              if (l.match(/^(Ảnh|Url)(\s*\d+)?[:]/i)) {
+                let imgPath = l.replace(/^(Ảnh|Url)(\s*\d+)?[:]/i, '').trim();
+                if (imgPath) imgUrls.push(imgPath);
+              }
               if (l.match(/^A\./i)) optA = l.replace(/^A\./i, '').trim();
               if (l.match(/^B\./i)) optB = l.replace(/^B\./i, '').trim();
               if (l.match(/^C\./i)) optC = l.replace(/^C\./i, '').trim();
@@ -759,13 +784,13 @@ Phần 3:
             });
 
             if (partNum === '1') {
-              questions.push({ id: Date.now() + Math.random(), subject, level: 'Thông hiểu', type: 'MCQ', text, image: imgUrl, options: { A: optA, B: optB, C: optC, D: optD }, correct: answerMap.P1[qNo] ? answerMap.P1[qNo].toUpperCase().charAt(0) : 'A' }); count++;
+              questions.push({ id: Date.now() + Math.random(), subject, level: 'Thông hiểu', type: 'MCQ', text, image: imgUrls, options: { A: optA, B: optB, C: optC, D: optD }, correct: answerMap.P1[qNo] ? answerMap.P1[qNo].toUpperCase().charAt(0) : 'A' }); count++;
             } else if (partNum === '2') {
               let ansStr = answerMap.P2[qNo] || '';
               if (ansStr) ansStr.split(',').forEach((p, idx) => { if (tfItems[idx]) tfItems[idx].ans = p.toLowerCase().includes('đúng') ? 'Đúng' : 'Sai'; });
-              questions.push({ id: Date.now() + Math.random(), subject, level: 'Thông hiểu', type: 'TF', text, image: imgUrl, items: tfItems }); count++;
+              questions.push({ id: Date.now() + Math.random(), subject, level: 'Thông hiểu', type: 'TF', text, image: imgUrls, items: tfItems }); count++;
             } else if (partNum === '3') {
-              questions.push({ id: Date.now() + Math.random(), subject, level: 'Thông hiểu', type: 'SHORT', text, image: imgUrl, correct: answerMap.P3[qNo] || '' }); count++;
+              questions.push({ id: Date.now() + Math.random(), subject, level: 'Thông hiểu', type: 'SHORT', text, image: imgUrls, correct: answerMap.P3[qNo] || '' }); count++;
             }
           }
         });
@@ -814,10 +839,10 @@ Phần 3:
               shuffledOpts[keys[newIdx]] = vals[origIdx];
               if (vals[origIdx] === q.options[q.correct]) correctKey = keys[newIdx];
             });
-            return { text: q.text, image: q.image, opts: shuffledOpts, correct: correctKey };
+            return { text: q.text, image: parseImages(q.image), opts: shuffledOpts, correct: correctKey };
           }),
-          tf: tfPool.map(q => ({ text: q.text, image: q.image, items: q.items })),
-          short: shortPool.map(q => ({ text: q.text, image: q.image, correct: q.correct }))
+          tf: tfPool.map(q => ({ text: q.text, image: parseImages(q.image), items: q.items })),
+          short: shortPool.map(q => ({ text: q.text, image: parseImages(q.image), correct: q.correct }))
         };
 
         let base64Data = btoa(unescape(encodeURIComponent(JSON.stringify(onlinePayload))));
@@ -847,7 +872,7 @@ Phần 3:
         if (onlinePayload.mcq.length > 0) {
           examHtml += `<div class="part-title">PHẦN I. Trắc nghiệm nhiều phương án</div>`;
           onlinePayload.mcq.forEach((q, idx) => {
-            let imgTag = q.image ? `<img src="${q.image}" class="q-img-preview">` : '';
+            let imgTag = renderImageHtml(q.image);
             let optHtml = Object.keys(q.opts).map(k => `<div><strong>${k}.</strong> ${q.opts[k]}</div>`).join('');
             examHtml += `<div class="exam-q"><strong>Câu ${idx + 1}:</strong> ${q.text}${imgTag}<div class="exam-opt">${optHtml}</div></div>`;
           });
@@ -856,7 +881,7 @@ Phần 3:
         if (onlinePayload.tf.length > 0) {
           examHtml += `<div class="part-title">PHẦN II. Trắc nghiệm Đúng / Sai</div>`;
           onlinePayload.tf.forEach((q, idx) => {
-            let imgTag = q.image ? `<img src="${q.image}" class="q-img-preview">` : '';
+            let imgTag = renderImageHtml(q.image);
             let tfHtml = q.items.map((it, i) => `<div>${String.fromCharCode(97+i)}) ${it.text} [ Đúng / Sai ]</div>`).join('');
             examHtml += `<div class="exam-q"><strong>Câu ${idx + 1}:</strong> ${q.text}${imgTag}<div style="margin-left:20px;">${tfHtml}</div></div>`;
           });
@@ -865,7 +890,7 @@ Phần 3:
         if (onlinePayload.short.length > 0) {
           examHtml += `<div class="part-title">PHẦN III. Trả lời ngắn</div>`;
           onlinePayload.short.forEach((q, idx) => {
-            let imgTag = q.image ? `<img src="${q.image}" class="q-img-preview">` : '';
+            let imgTag = renderImageHtml(q.image);
             examHtml += `<div class="exam-q"><strong>Câu ${idx + 1}:</strong> ${q.text}${imgTag}<div style="margin-top:5px;"><i>Trả lời: ....................................................</i></div></div>`;
           });
         }
@@ -927,7 +952,7 @@ Phần 3:
       if (data.mcq && data.mcq.length > 0) {
         container.innerHTML += `<div class="part-title">PHẦN I. Câu hỏi trắc nghiệm (Chọn 1 đáp án)</div>`;
         data.mcq.forEach((q, idx) => {
-          let imgTag = q.image ? `<img src="${q.image}" class="q-img-preview">` : '';
+          let imgTag = renderImageHtml(q.image);
           let optsHtml = Object.keys(q.opts).map(k => `
             <label class="online-option-label">
               <input type="radio" name="mcq_${idx}" value="${k}"> <b>${k}.</b> ${q.opts[k]}
@@ -940,7 +965,7 @@ Phần 3:
       if (data.tf && data.tf.length > 0) {
         container.innerHTML += `<div class="part-title">PHẦN II. Trắc nghiệm Đúng / Sai</div>`;
         data.tf.forEach((q, idx) => {
-          let imgTag = q.image ? `<img src="${q.image}" class="q-img-preview">` : '';
+          let imgTag = renderImageHtml(q.image);
           let itemsHtml = q.items.map((it, i) => `
             <div style="margin-top:8px; display:flex; align-items:center; gap:14px; background:#f8fafc; padding:8px 12px; border-radius:8px;">
               <span style="flex:1;"><b>${String.fromCharCode(97+i)})</b> ${it.text}</span>
@@ -955,7 +980,7 @@ Phần 3:
       if (data.short && data.short.length > 0) {
         container.innerHTML += `<div class="part-title">PHẦN III. Trả lời ngắn</div>`;
         data.short.forEach((q, idx) => {
-          let imgTag = q.image ? `<img src="${q.image}" class="q-img-preview">` : '';
+          let imgTag = renderImageHtml(q.image);
           container.innerHTML += `
             <div class="exam-q" style="margin-bottom:20px;">
               <strong>Câu ${idx + 1}:</strong> ${q.text}${imgTag}
