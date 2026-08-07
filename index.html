@@ -1019,7 +1019,7 @@ Phần 3:
     let currentOnlineExamData = null;
     let timerInterval = null;
 
-    // --- LOGIC ĐĂNG NHẬP DÒ TỰ ĐỘNG THIẾT BỊ ---
+    // LẤY MÃ THIẾT BỊ
     async function getDeviceId() {
       if (window.pywebview && window.pywebview.api) {
         if (window.pywebview.api.get_hwid) {
@@ -1045,11 +1045,20 @@ Phần 3:
       });
     }
 
+    // XÁC THỰC BẢO MẬT VÀ PHÂN QUYỀN TRUY CẬP
     async function autoVerifyDevice() {
+      const overlay = document.getElementById('auth-overlay');
+
+      // NẾU LÀ LINK LÀM BÀI CỦA HỌC SINH (#online-exam=) -> MIỄN XÁC THỰC THIẾT BỊ
+      if (window.location.hash.includes('#online-exam=')) {
+        if (overlay) overlay.style.display = 'none';
+        return; 
+      }
+
+      // TRƯỜNG HỢP VÀO TRANG CHỦ -> BẮT ĐẦU DÒ MÃ THIẾT BỊ
       const spinner = document.getElementById('auth-spinner');
       const title = document.getElementById('auth-title');
       const desc = document.getElementById('auth-desc');
-      const overlay = document.getElementById('auth-overlay');
 
       try {
         const deviceId = await getDeviceId();
