@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SmartSun Edu - Hệ Thống Quản Lý, Trộn Đề & Kiểm Tra Online</title>
+  <title>SmartSun Edu - Hệ Thống Quản Lý, Trộn Đề & Kiểm Tra Online CyberTech</title>
   
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
   <!-- Thư viện KaTeX -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
@@ -19,99 +20,490 @@
 
   <style>
     :root {
-      --primary: #4338ca;
-      --primary-hover: #3730a3;
-      --accent: #06b6d4;
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text-main: #0f172a;
-      --text-muted: #64748b;
-      --border: #e2e8f0;
-      --success: #10b981;
-      --danger: #ef4444;
-      --warning: #f59e0b;
-      --radius: 14px;
-      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
-      --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.08);
-      --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+      --bg-dark: #090d16;
+      --bg-card: #0f172a;
+      --bg-card-hover: #1e293b;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(99, 102, 241, 0.3);
+      
+      --primary: #6366f1;
+      --primary-glow: rgba(99, 102, 241, 0.4);
+      --cyan: #06b6d4;
+      --cyan-glow: rgba(6, 182, 212, 0.4);
+      --violet: #8b5cf6;
+      --emerald: #10b981;
+      --rose: #f43f5e;
+      --amber: #f59e0b;
+
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+
+      --shadow-cyber: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.15);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
-    body { background-color: var(--bg); color: var(--text-main); padding-bottom: 60px; line-height: 1.6; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; }
+    
+    body { 
+      background-color: var(--bg-dark); 
+      color: var(--text-main); 
+      min-height: 100vh;
+      padding-bottom: 60px; 
+      line-height: 1.6;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(6, 182, 212, 0.08) 0%, transparent 40%);
+      background-attachment: fixed;
+    }
 
-    /* Màn hình khóa Đăng nhập */
+    /* Ambient Glow Grid Effect */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-image: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Auth Overlay Screen */
     #auth-overlay {
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(15, 23, 42, 0.96); backdrop-filter: blur(8px);
-      z-index: 9999; display: flex; align-items: center; justify-content: center;
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: var(--bg-dark);
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
     }
+
     .auth-card {
-      background: #ffffff; padding: 32px; border-radius: var(--radius);
-      width: 100%; max-width: 440px; box-shadow: var(--shadow-lg); border: 1px solid var(--border);
+      background: var(--bg-card);
+      border: 1px solid var(--border-glow);
+      padding: 40px;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-cyber);
+      max-width: 480px;
+      width: 100%;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(255, 255, 255, 0.1);
+      border-left-color: var(--cyan);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
     header { 
-      background: #ffffff; color: var(--text-main); padding: 1.25rem 2rem; 
-      border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm);
+      position: relative;
+      z-index: 10;
+      background: rgba(15, 23, 42, 0.75); 
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-color); 
+      padding: 1rem 2rem; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      box-shadow: var(--shadow-cyber);
     }
+
     .brand-container { display: flex; align-items: center; gap: 14px; }
+    
     .logo-icon {
-      width: 42px; height: 42px; background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
-      border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+      width: 46px; height: 46px; 
+      background: linear-gradient(135deg, var(--primary) 0%, var(--cyan) 100%);
+      border-radius: var(--radius-md); 
+      display: flex; align-items: center; justify-content: center; color: white; 
+      box-shadow: 0 0 18px var(--primary-glow);
+      position: relative;
+      overflow: hidden;
     }
-    .brand-title { font-size: 1.35rem; font-weight: 800; background: linear-gradient(135deg, #1e1b4b 0%, #4338ca 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+    .logo-icon::after {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%; width: 200%; height: 200%;
+      background: linear-gradient(60deg, transparent, rgba(255,255,255,0.3), transparent);
+      transform: rotate(30deg);
+      animation: shine 4s infinite;
+    }
+
+    @keyframes shine {
+      0% { transform: translateX(-100%) rotate(30deg); }
+      20%, 100% { transform: translateX(100%) rotate(30deg); }
+    }
+
+    .brand-title { 
+      font-size: 1.4rem; 
+      font-weight: 800; 
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff 30%, #a5f3fc 100%); 
+      -webkit-background-clip: text; 
+      -webkit-text-fill-color: transparent; 
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-badge {
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      border-radius: 20px;
+      background: rgba(6, 182, 212, 0.15);
+      color: var(--cyan);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      letter-spacing: 1px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
     .brand-subtitle { font-size: 0.82rem; color: var(--text-muted); font-weight: 500; }
 
     nav { 
-      display: flex; gap: 8px; background: #ffffff; padding: 10px 2rem; border-bottom: 1px solid var(--border);
-      position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.02); flex-wrap: wrap;
+      position: sticky; top: 0; z-index: 100;
+      display: flex; gap: 8px; 
+      background: rgba(15, 23, 42, 0.85); 
+      backdrop-filter: blur(12px);
+      padding: 10px 2rem; 
+      border-bottom: 1px solid var(--border-color);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); 
+      flex-wrap: wrap;
     }
+
     .nav-btn, .nav-link-btn { 
-      padding: 10px 20px; border: none; background: transparent; font-weight: 600; cursor: pointer; color: var(--text-muted); border-radius: 10px; transition: all 0.2s ease; font-size: 0.92rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 18px; 
+      border: 1px solid transparent; 
+      background: rgba(255, 255, 255, 0.03); 
+      font-weight: 600; 
+      cursor: pointer; 
+      color: var(--text-muted); 
+      border-radius: var(--radius-md); 
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
+      font-size: 0.88rem; 
+      text-decoration: none; 
+      display: inline-flex; 
+      align-items: center; 
+      gap: 8px;
     }
-    .nav-btn:hover, .nav-link-btn:hover { background: #f1f5f9; color: var(--text-main); }
-    .nav-btn.active { background: #e0e7ff; color: var(--primary); font-weight: 700; }
 
-    .container { max-width: 1150px; margin: 28px auto; padding: 0 20px; }
+    .nav-btn:hover, .nav-link-btn:hover { 
+      background: rgba(255, 255, 255, 0.07); 
+      color: var(--text-main); 
+      border-color: rgba(255, 255, 255, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .nav-btn.active { 
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(6, 182, 212, 0.15) 100%); 
+      color: #ffffff; 
+      border-color: var(--cyan);
+      box-shadow: 0 0 12px rgba(6, 182, 212, 0.2);
+      font-weight: 700; 
+    }
+
+    .container { position: relative; z-index: 1; max-width: 1200px; margin: 28px auto; padding: 0 20px; }
+    
     .tab-content { display: none; }
-    .tab-content.active { display: block; animation: fadeIn 0.25s ease-out; }
+    .tab-content.active { display: block; animation: cyberFadeIn 0.3s ease-out; }
 
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-
-    .card { background: var(--card-bg); padding: 28px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 24px; box-shadow: var(--shadow-md); }
-    h2 { font-size: 1.15rem; color: var(--text-main); margin-bottom: 18px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
-
-    label { display: block; margin-top: 12px; font-weight: 600; font-size: 0.88rem; color: #334155; }
-    input, select, textarea { 
-      width: 100%; padding: 11px 16px; margin-top: 6px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 0.92rem; background: #f8fafc; transition: all 0.2s ease; color: var(--text-main);
+    @keyframes cyberFadeIn { 
+      from { opacity: 0; transform: translateY(10px) scale(0.99); } 
+      to { opacity: 1; transform: translateY(0) scale(1); } 
     }
-    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); background: #fff; box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); }
-    textarea { resize: vertical; min-height: 100px; }
+
+    .card { 
+      background: var(--bg-card); 
+      padding: 28px; 
+      border-radius: var(--radius-lg); 
+      border: 1px solid var(--border-color); 
+      margin-bottom: 24px; 
+      box-shadow: var(--shadow-cyber);
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s ease;
+    }
+
+    .card:hover {
+      border-color: rgba(99, 102, 241, 0.25);
+    }
+
+    h2 { 
+      font-size: 1.15rem; 
+      color: var(--text-main); 
+      margin-bottom: 20px; 
+      font-weight: 700; 
+      display: flex; 
+      align-items: center; 
+      gap: 10px;
+      letter-spacing: -0.2px;
+    }
+
+    h2 svg { color: var(--cyan); }
+
+    label { display: block; margin-top: 14px; font-weight: 600; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    input, select, textarea { 
+      width: 100%; 
+      padding: 12px 16px; 
+      margin-top: 6px; 
+      border: 1px solid var(--border-color); 
+      border-radius: var(--radius-md); 
+      font-size: 0.92rem; 
+      background: rgba(0, 0, 0, 0.25); 
+      transition: all 0.25s ease; 
+      color: var(--text-main);
+    }
+
+    input:focus, select:focus, textarea:focus { 
+      outline: none; 
+      border-color: var(--cyan); 
+      background: rgba(0, 0, 0, 0.4); 
+      box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15); 
+    }
+
+    textarea { resize: vertical; min-height: 110px; font-family: 'Plus Jakarta Sans', system-ui; }
+
+    select option {
+      background-color: var(--bg-card);
+      color: var(--text-main);
+    }
 
     .btn { 
-      padding: 10px 20px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--primary); color: white; font-size: 0.9rem; transition: all 0.2s ease; box-shadow: var(--shadow-sm);
+      padding: 11px 22px; 
+      border: 1px solid transparent; 
+      border-radius: var(--radius-md); 
+      font-weight: 600; 
+      cursor: pointer; 
+      display: inline-flex; 
+      align-items: center; 
+      justify-content: center; 
+      gap: 8px; 
+      background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%); 
+      color: white; 
+      font-size: 0.9rem; 
+      transition: all 0.25s ease; 
+      box-shadow: 0 4px 14px var(--primary-glow);
     }
-    .btn:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: var(--shadow-md); }
-    .btn-success { background: var(--success); } .btn-success:hover { background: #059669; }
-    .btn-danger { background: var(--danger); } .btn-danger:hover { background: #dc2626; }
-    .btn-warning { background: var(--warning); color: #fff; } .btn-warning:hover { background: #d97706; }
-    .btn-secondary { background: #64748b; } .btn-secondary:hover { background: #475569; }
+
+    .btn:hover { 
+      transform: translateY(-2px); 
+      box-shadow: 0 6px 20px var(--primary-glow); 
+      filter: brightness(1.1);
+    }
+
+    .btn:active { transform: translateY(0); }
+
+    .btn-success { 
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+    } 
+    .btn-success:hover { box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4); }
+
+    .btn-danger { 
+      background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); 
+      box-shadow: 0 4px 14px rgba(244, 63, 94, 0.3);
+    } 
+    .btn-danger:hover { box-shadow: 0 6px 20px rgba(244, 63, 94, 0.4); }
+
+    .btn-warning { 
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); 
+      color: #fff; 
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+    } 
+    .btn-warning:hover { box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4); }
+
+    .btn-secondary { 
+      background: rgba(255, 255, 255, 0.08); 
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      box-shadow: none;
+    } 
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.15); border-color: rgba(255, 255, 255, 0.2); }
 
     .type-container { display: none; }
-    .type-container.active { display: block; }
+    .type-container.active { display: block; animation: cyberFadeIn 0.2s ease; }
 
-    .q-item { padding: 18px; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 14px; display: flex; gap: 14px; background: #ffffff; align-items: flex-start; }
+    .q-item { 
+      padding: 20px; 
+      border: 1px solid var(--border-color); 
+      border-radius: var(--radius-md); 
+      margin-bottom: 16px; 
+      display: flex; 
+      gap: 16px; 
+      background: rgba(0, 0, 0, 0.25); 
+      align-items: flex-start; 
+      transition: all 0.25s ease;
+      position: relative;
+    }
+
+    .q-item:hover {
+      border-color: rgba(6, 182, 212, 0.35);
+      background: rgba(0, 0, 0, 0.35);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    }
+
     .q-content { flex: 1; }
-    .q-badge { font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; background: #e0e7ff; color: var(--primary); font-weight: 700; }
-    .q-img-preview { max-width: 280px; max-height: 180px; object-fit: contain; display: inline-block; margin: 8px 8px 8px 0; border: 1px solid var(--border); border-radius: 8px; background: #fafafa; }
+    
+    .q-badge { 
+      font-size: 0.72rem; 
+      padding: 3px 10px; 
+      border-radius: 20px; 
+      background: rgba(99, 102, 241, 0.15); 
+      color: #a5b4fc; 
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      font-weight: 700; 
+      display: inline-block;
+      margin-right: 6px;
+    }
+
+    .q-badge-level {
+      font-size: 0.72rem;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: rgba(6, 182, 212, 0.12);
+      color: var(--cyan);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      font-weight: 600;
+    }
+
+    .q-img-preview { 
+      max-width: 280px; 
+      max-height: 180px; 
+      object-fit: contain; 
+      display: inline-block; 
+      margin: 10px 8px 10px 0; 
+      border: 1px solid var(--border-color); 
+      border-radius: var(--radius-sm); 
+      background: rgba(0,0,0,0.4); 
+    }
+    
     .q-img-container { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
 
-    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); }
-    .modal-content { background: white; max-width: 750px; margin: 50px auto; padding: 28px; border-radius: var(--radius); max-height: 85vh; overflow-y: auto; box-shadow: var(--shadow-lg); }
-    .close-modal { float: right; font-size: 1.5rem; cursor: pointer; font-weight: bold; color: var(--text-muted); }
+    /* Interactive Correct Answer Edit Box */
+    .ans-edit-box {
+      margin-top: 14px;
+      padding: 12px 16px;
+      background: rgba(6, 182, 212, 0.06);
+      border: 1px dashed rgba(6, 182, 212, 0.25);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
 
-    /* Layout Khung Đề Thi */
-    .exam-paper { background: white; padding: 40px; margin-bottom: 30px; border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: var(--shadow-md); }
+    .ans-edit-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mcq-btn-group {
+      display: inline-flex;
+      gap: 6px;
+    }
+
+    .mcq-opt-btn {
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .mcq-opt-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+    }
+
+    .mcq-opt-btn.active {
+      background: linear-gradient(135deg, var(--emerald) 0%, #059669 100%);
+      color: #ffffff;
+      border-color: var(--emerald);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+    }
+
+    .tf-edit-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 8px;
+      width: 100%;
+    }
+
+    .tf-edit-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(0,0,0,0.2);
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.82rem;
+    }
+
+    .tf-select {
+      padding: 4px 8px;
+      font-size: 0.8rem;
+      width: auto;
+      margin: 0;
+      background: rgba(15, 23, 42, 0.9);
+      border-color: rgba(6, 182, 212, 0.3);
+      color: #a5f3fc;
+      font-weight: 700;
+      border-radius: 6px;
+    }
+
+    /* Modal styling */
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px); }
+    .modal-content { 
+      background: var(--bg-card); 
+      border: 1px solid var(--border-glow);
+      max-width: 750px; 
+      margin: 40px auto; 
+      padding: 30px; 
+      border-radius: var(--radius-lg); 
+      max-height: 85vh; 
+      overflow-y: auto; 
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.8); 
+    }
+    .close-modal { float: right; font-size: 1.5rem; cursor: pointer; font-weight: bold; color: var(--text-muted); transition: color 0.2s; }
+    .close-modal:hover { color: var(--rose); }
+
+    .exam-paper { 
+      background: #ffffff; 
+      color: #0f172a;
+      padding: 40px; 
+      margin-bottom: 30px; 
+      border-radius: var(--radius-md); 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+    }
     
     .exam-header-grid { 
       display: grid; 
@@ -130,88 +522,140 @@
     .header-right .exam-sub { font-style: italic; font-size: 0.9rem; margin-top: 2px; }
     .header-right .code-box { font-weight: 800; font-size: 1rem; margin-top: 4px; border: 1px dashed #000; padding: 2px 10px; border-radius: 4px; display: inline-block; }
 
-    .part-title { font-weight: 700; font-size: 0.98rem; margin: 22px 0 12px 0; padding: 6px 12px; background-color: #f1f5f9; border-left: 4px solid var(--primary); border-radius: 0 6px 6px 0; }
-    .exam-q { margin-bottom: 16px; page-break-inside: avoid; }
+    .part-title { font-weight: 700; font-size: 0.98rem; margin: 22px 0 12px 0; padding: 8px 14px; background-color: #f1f5f9; color: #0f172a; border-left: 4px solid var(--primary); border-radius: 0 6px 6px 0; }
+    .exam-q { margin-bottom: 18px; page-break-inside: avoid; }
     .exam-opt { margin-left: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
 
     /* Giao diện Làm bài Online */
-    .online-option-label { display: flex; align-items: center; gap: 10px; background: #f8fafc; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; margin-top: 6px; }
-    .online-option-label:hover { background: #f1f5f9; }
-    .online-option-label input { width: auto; margin: 0; }
-    .timer-sticky { position: sticky; top: 10px; z-index: 90; background: #1e1b4b; color: white; padding: 12px 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-md); margin-bottom: 20px; }
+    .online-option-label { 
+      display: flex; 
+      align-items: center; 
+      gap: 12px; 
+      background: rgba(255, 255, 255, 0.04); 
+      padding: 12px 16px; 
+      border: 1px solid var(--border-color); 
+      border-radius: var(--radius-md); 
+      cursor: pointer; 
+      margin-top: 8px; 
+      transition: all 0.2s ease;
+    }
+    .online-option-label:hover { 
+      background: rgba(6, 182, 212, 0.1); 
+      border-color: var(--cyan);
+    }
+    .online-option-label input { width: auto; margin: 0; cursor: pointer; }
+    
+    .timer-sticky { 
+      position: sticky; top: 15px; z-index: 90; 
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%); 
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-glow);
+      color: white; 
+      padding: 14px 24px; 
+      border-radius: var(--radius-lg); 
+      display: flex; justify-content: space-between; align-items: center; 
+      box-shadow: var(--shadow-cyber); 
+      margin-bottom: 24px; 
+    }
+
+    .pulse-dot {
+      width: 10px; height: 10px;
+      background-color: var(--emerald);
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: 0 0 10px var(--emerald);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    .toast-notify {
+      position: fixed; bottom: 20px; right: 20px; z-index: 2000;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white; padding: 12px 20px; border-radius: var(--radius-md);
+      font-weight: 600; font-size: 0.9rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      display: none; animation: cyberFadeIn 0.3s ease-out;
+    }
 
     @page { 
       size: auto; 
       margin: 0;
     }
+
     @media print {
-      nav, header, .no-print, #auth-overlay { display: none !important; }
-      body { background: white; padding: 15mm 15mm 15mm 15mm; margin: 0; }
+      nav, header, .no-print { display: none !important; }
+      body { background: white; color: black; padding: 15mm; margin: 0; background-image: none; }
+      body::before { display: none; }
       .container { max-width: 100%; margin: 0; padding: 0; }
-      .exam-paper { border: none; padding: 0; margin-bottom: 0; page-break-after: always; box-shadow: none; }
-      .part-title { background-color: transparent; border-left: none; text-decoration: underline; padding-left: 0; }
+      .exam-paper { border: none; padding: 0; margin-bottom: 0; page-break-after: always; box-shadow: none; color: black; }
+      .part-title { background-color: transparent; border-left: none; text-decoration: underline; padding-left: 0; color: black; }
     }
   </style>
 </head>
 <body>
 
-  <!-- MÀN HÌNH ĐĂNG NHẬP THIẾT BỊ (CHỈ DÙNG CHO QUẢN TRỊ / GIÁO VIÊN) -->
+  <!-- AUTH CHECK OVERLAY -->
   <div id="auth-overlay">
     <div class="auth-card">
-      <div style="text-align: center; margin-bottom: 20px;">
-        <div class="logo-icon" style="margin: 0 auto 12px auto; width: 50px; height: 50px;">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-          </svg>
-        </div>
-        <h2 style="justify-content: center; font-size: 1.3rem;">XÁC THỰC THIẾT BỊ QUẢN TRỊ</h2>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Vui lòng nhập Key kích hoạt tương ứng để sử dụng hệ thống quản lý đề</p>
-      </div>
-
-      <div style="margin-bottom: 14px;">
-        <label>Mã Thiết Bị (Device ID):</label>
-        <div style="display: flex; gap: 8px; align-items: center;">
-          <input type="text" id="auth-device-id" readonly style="font-weight: bold; background: #e2e8f0; color: #1e293b; cursor: not-allowed;">
-          <button class="btn btn-secondary" style="padding: 10px 12px;" onclick="copyDeviceId()" title="Sao chép Mã">📋</button>
-        </div>
-      </div>
-
-      <div style="margin-bottom: 20px;">
-        <label>Key Kích Hoạt:</label>
-        <input type="password" id="auth-key-input" placeholder="Nhập Key từ quản trị viên..." required>
-      </div>
-
-      <button class="btn btn-success" style="width: 100%; padding: 12px; font-size: 1rem;" onclick="verifyDeviceAuth()">🔐 ĐĂNG NHẬP HỆ THỐNG</button>
-      <div id="auth-error-msg" style="color: var(--danger); font-size: 0.85rem; text-align: center; margin-top: 12px; font-weight: 600;"></div>
+      <div id="auth-spinner" class="spinner"></div>
+      <h3 id="auth-title" style="margin-bottom: 12px; color: var(--cyan);">Đang xác thực hệ thống...</h3>
+      <p id="auth-desc" style="font-size: 0.88rem; color: var(--text-muted);">Đang tự động kiểm tra mã thiết bị và bản quyền ứng dụng. Vui lòng chờ trong giây lát.</p>
     </div>
   </div>
+
+  <!-- Toast Thông báo -->
+  <div id="toast-msg" class="toast-notify">✅ Đã cập nhật đáp án đúng thành công!</div>
 
   <!-- HEADER -->
   <header class="no-print" id="main-header">
     <div class="brand-container">
       <div class="logo-icon">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
           <circle cx="12" cy="10" r="3"></circle>
         </svg>
       </div>
       <div>
-        <div class="brand-title">SmartSun Edu</div>
-        <div class="brand-subtitle">Hệ Thống Quản Lý, Trộn Đề & Kiểm Tra Online</div>
+        <div class="brand-title">SmartSun Edu <span class="brand-badge">PRO DESKTOP</span></div>
+        <div class="brand-subtitle">Hệ Thống Quản Lý, Trộn Đề & Kiểm Tra Trực Tuyến Tự Động</div>
       </div>
     </div>
-    <button class="btn btn-secondary" style="font-size: 0.8rem; padding: 6px 12px;" onclick="logoutDevice()">🔒 Đăng xuất thiết bị</button>
+    
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span style="font-size: 0.82rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px;" id="license-badge-display">
+        <span class="pulse-dot"></span> Đã Xác Thực Bản Quyền
+      </span>
+    </div>
   </header>
 
   <!-- THANH ĐIỀU HƯỚNG -->
   <nav class="no-print" id="main-nav">
-    <button class="nav-btn active" onclick="switchTab('tab-qbank', event)">📋 Ngân Hàng Câu Hỏi</button>
-    <button class="nav-btn" onclick="switchTab('tab-bulk', event)">📥 Tạo Đề Thi</button>
-    <button class="nav-btn" onclick="switchTab('tab-exam', event)">🔀 Trộn & Xuất Đề Thi</button>
-    <a href="https://postimages.org/" target="_blank" class="nav-link-btn">🖼️ Link Ảnh</a>
-    <a href="https://by.com.vn/" target="_blank" class="nav-link-btn">🔗 Rút Gọn Link Bài Tập</a>
+    <button class="nav-btn active" onclick="switchTab('tab-qbank', event)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+      Ngân Hàng Câu Hỏi
+    </button>
+    <button class="nav-btn" onclick="switchTab('tab-bulk', event)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+      Tạo Đề Từ File / Text
+    </button>
+    <button class="nav-btn" onclick="switchTab('tab-exam', event)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
+      Trộn & Xuất Đề Thi
+    </button>
+    <a href="https://postimages.org/" target="_blank" class="nav-link-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+      Up Ảnh Lấy Link
+    </a>
+    <a href="https://by.com.vn/" target="_blank" class="nav-link-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+      Rút Gọn Link
+    </a>
   </nav>
 
   <div class="container">
@@ -219,9 +663,12 @@
     <!-- TAB 1: NGÂN HÀNG CÂU HỎI -->
     <div id="tab-qbank" class="tab-content active">
       <div class="card no-print">
-        <h2>➕ Thêm câu hỏi lẻ mới</h2>
+        <h2>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          Thêm Câu Hỏi Lẻ Mới
+        </h2>
         <form id="add-q-form" onsubmit="saveQuestion(event)">
-          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
             <div>
               <label>Môn học:</label>
               <select id="q-subject" required>
@@ -246,17 +693,17 @@
             </div>
           </div>
 
-          <label>Nội dung câu hỏi:</label>
-          <textarea id="q-text" required placeholder="Nhập nội dung câu hỏi..."></textarea>
+          <label>Nội dung câu hỏi (Hỗ trợ công thức LaTeX $\dots$):</label>
+          <textarea id="q-text" required placeholder="Nhập nội dung câu hỏi... Ví dụ: Cho hàm số $y = x^2 + 2x + 1$"></textarea>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 8px;">
-            <div><label>Tải ảnh từ máy tính:</label><input type="file" id="q-img-file" accept="image/*" onchange="handleLocalImageUpload(event)" style="padding: 8px;"></div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 8px;">
+            <div><label>Tải ảnh từ máy tính:</label><input type="file" id="q-img-file" accept="image/*" onchange="handleLocalImageUpload(event)"></div>
             <div><label>Hoặc dán Link ảnh (URL):</label><input type="url" id="q-img-url" placeholder="https://..." onkeyup="handleUrlImageInput(this.value)" onchange="handleUrlImageInput(this.value)"></div>
           </div>
           
-          <div id="img-preview-container" style="display: none; margin-top: 14px; background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px dashed var(--border);">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <label style="margin-top:0; color: var(--primary);">📷 Xem trước ảnh:</label>
+          <div id="img-preview-container" style="display: none; margin-top: 14px; background: rgba(0,0,0,0.3); padding: 14px; border-radius: var(--radius-md); border: 1px dashed var(--border-color);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <label style="margin-top:0; color: var(--cyan);">📷 Xem trước hình ảnh:</label>
               <button type="button" class="btn btn-danger" style="padding: 4px 10px; font-size: 0.78rem;" onclick="clearImage()">❌ Xóa ảnh</button>
             </div>
             <div id="img-preview-wrapper" class="q-img-container"></div>
@@ -264,7 +711,7 @@
           </div>
 
           <div id="form-type-MCQ" class="type-container active">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-top: 12px;">
               <div><label>Đáp án A:</label><input type="text" id="q-optA"></div>
               <div><label>Đáp án B:</label><input type="text" id="q-optB"></div>
               <div><label>Đáp án C:</label><input type="text" id="q-optC"></div>
@@ -275,8 +722,8 @@
           </div>
 
           <div id="form-type-TF" class="type-container">
-            <label style="margin-bottom: 6px;">Nhập 4 ý và chọn Đúng/Sai:</label>
-            <div style="display: grid; gap: 10px;">
+            <label style="margin-bottom: 8px;">Nhập 4 ý và chọn Đúng / Sai tương ứng:</label>
+            <div style="display: grid; gap: 12px;">
               <div style="display: flex; gap: 10px; align-items: center;"><input type="text" id="tf-a" placeholder="Ý a)..."><select id="tf-ans-a" style="width: 110px; margin:0;"><option value="Đúng">Đúng</option><option value="Sai">Sai</option></select></div>
               <div style="display: flex; gap: 10px; align-items: center;"><input type="text" id="tf-b" placeholder="Ý b)..."><select id="tf-ans-b" style="width: 110px; margin:0;"><option value="Đúng">Đúng</option><option value="Sai">Sai</option></select></div>
               <div style="display: flex; gap: 10px; align-items: center;"><input type="text" id="tf-c" placeholder="Ý c)..."><select id="tf-ans-c" style="width: 110px; margin:0;"><option value="Đúng">Đúng</option><option value="Sai">Sai</option></select></div>
@@ -285,25 +732,32 @@
           </div>
 
           <div id="form-type-SHORT" class="type-container">
-            <label>Đáp án đáp số ngắn:</label>
-            <input type="text" id="q-correct-SHORT" placeholder="VD: 1954 hoặc Hà Nội">
+            <label>Đáp án / Kết quả ngắn:</label>
+            <input type="text" id="q-correct-SHORT" placeholder="VD: 1954 hoặc Hà Nội hoặc 12/5">
           </div>
 
-          <button type="submit" class="btn btn-success" style="margin-top: 18px;">💾 Lưu Câu Hỏi</button>
+          <button type="submit" class="btn btn-success" style="margin-top: 20px;">💾 Lưu Vào Ngân Hàng Câu Hỏi</button>
         </form>
       </div>
 
       <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px;">
-          <h2>📋 Danh Sách Câu Hỏi (<span id="q-count">0</span>)</h2>
-          <div style="display: flex; gap: 10px; align-items: center;">
-            <label style="margin: 0; font-weight: bold;">Lọc môn:</label>
-            <select id="filter-subject" onchange="renderQuestions()" style="width: 160px; margin: 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 14px;">
+          <h2>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+            Danh Sách Câu Hỏi (<span id="q-count" style="color:var(--cyan);">0</span>)
+          </h2>
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <label style="margin: 0; font-weight: bold; text-transform: none;">Lọc môn:</label>
+            <select id="filter-subject" onchange="renderQuestions()" style="width: 150px; margin: 0;">
               <option value="Tất cả">Tất cả môn</option><option value="Lịch Sử">Lịch Sử</option><option value="Toán">Toán</option>
               <option value="Vật Lý">Vật Lý</option><option value="Hóa Học">Hóa Học</option><option value="Địa Lý">Địa Lý</option><option value="Tin Học">Tin Học</option>
             </select>
-            <button class="btn btn-warning" onclick="toggleSelectAll(this)">☑️ Chọn tất cả</button>
-            <button class="btn btn-danger" onclick="deleteSelectedQuestions()">🗑️ Xóa đã chọn</button>
+            <button class="btn btn-warning" style="padding: 8px 14px; font-size: 0.85rem;" onclick="toggleSelectAll(this)">☑️ Chọn tất cả</button>
+            <button class="btn btn-danger" style="padding: 8px 14px; font-size: 0.85rem;" onclick="deleteSelectedQuestions()">🗑️ Xóa đã chọn</button>
+            
+            <button class="btn btn-secondary" style="padding: 8px 14px; font-size: 0.85rem;" onclick="exportJoinFile()">📥 Xuất File (.join)</button>
+            <button class="btn btn-secondary" style="padding: 8px 14px; font-size: 0.85rem;" onclick="triggerImportJoin()">📤 Nhập File (.join)</button>
+            <input type="file" id="import-join-input" accept=".join" style="display:none;" onchange="importJoinFile(event)">
           </div>
         </div>
         <div id="q-list"></div>
@@ -313,19 +767,22 @@
     <!-- TAB 2: TẠO ĐỀ THI HÀNG LOẠT -->
     <div id="tab-bulk" class="tab-content">
       <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
-          <h2>📥 Tạo Đề Thi Theo Cấu Trúc 3 Phần Chuẩn</h2>
-          <button class="btn btn-warning" onclick="openGuideModal()">📖 Xem mẫu cú pháp</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px; flex-wrap:wrap; gap:12px;">
+          <h2>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            Trích Xuất & Import Đề Thi 3 Phần Chuẩn
+          </h2>
+          <button class="btn btn-warning" onclick="openGuideModal()">📖 Xem mẫu cú pháp nhập</button>
         </div>
-        <label style="margin-bottom: 6px;">Chọn file Word (.docx) chứa câu hỏi:</label>
-        <input type="file" id="word-file-input" accept=".docx" onchange="importFromWord(event)" style="padding: 8px;">
+        
+        <label style="margin-bottom: 6px;">Tải lên file Microsoft Word (.docx) chứa nội dung đề:</label>
+        <input type="file" id="word-file-input" accept=".docx" onchange="importFromWord(event)" style="padding: 10px;">
 
-        <textarea id="bulk-text" style="height: 380px; margin-top: 16px; font-family: monospace; font-size:0.88rem;" placeholder="Môn: Địa Lý
+        <textarea id="bulk-text" style="height: 380px; margin-top: 18px; font-family: 'JetBrains Mono', monospace; font-size:0.88rem;" placeholder="Môn: Địa Lý
 
 Phần 1: Trắc nghiệm
 Câu 1: Cho bản đồ bên dưới:
 Ảnh 1: https://i.postimg.cc/abc.jpg
-Ảnh 2: https://i.postimg.cc/xyz.jpg
 A. Hà Nội
 B. TP.HCM
 C. Đà Nẵng
@@ -350,15 +807,18 @@ Phần 2:
 
 Phần 3:
 1. 63"></textarea>
-        <button class="btn btn-success" onclick="processBulkImportNew()" style="margin-top: 14px;">⚡ Trích Xuất & Lưu Cấu Trúc 3 Phần</button>
+        <button class="btn btn-success" onclick="processBulkImportNew()" style="margin-top: 18px;">⚡ Trích Xuất & Lưu Vào Ngân Hàng Câu Hỏi</button>
       </div>
     </div>
 
     <!-- TAB 3: TRỘN & XUẤT ĐỀ THI -->
     <div id="tab-exam" class="tab-content">
       <div class="card no-print">
-        <h2>⚙️ Cấu Hình & Trộn Đề Thi</h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+        <h2>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          Cấu Hình & Tạo Mã Đề Trộn
+        </h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
           <div><label>Tên Trường / Sở GD:</label><input type="text" id="info-school" value="TRƯỜNG THPT NGUYỄN TRÃI"></div>
           <div><label>Kỳ thi / Bài thi:</label><input type="text" id="info-title" value="BÀI KIỂM TRA ĐỊNH KỲ"></div>
           <div>
@@ -368,13 +828,26 @@ Phần 3:
               <option value="Vật Lý">Vật Lý</option><option value="Hóa Học">Hóa Học</option><option value="Địa Lý">Địa Lý</option><option value="Tin Học">Tin Học</option>
             </select>
           </div>
-          <div><label>Số mã đề cần tạo:</label><input type="number" id="exam-num-codes" value="2"></div>
+          <div><label>Số mã đề cần tạo:</label><input type="number" id="exam-num-codes" value="2" min="1" max="20"></div>
           <div><label>Mã đề bắt đầu:</label><input type="number" id="exam-start-code" value="101"></div>
           <div><label>Thời gian làm bài (Phút):</label><input type="number" id="exam-duration" value="45"></div>
         </div>
-        <div style="margin-top: 18px; display: flex; gap: 12px;">
+
+        <div style="margin-top: 16px;">
+          <label style="color: var(--cyan);">🌐 Tên miền Web Công Khai (Hosting Online 24/7):</label>
+          <input type="url" id="custom-domain-url" placeholder="https://smartsun-edu.netlify.app" onchange="saveCustomDomainUrl(this.value)">
+          <span style="font-size:0.78rem; color:var(--text-muted);">Dán địa chỉ Web công khai của bạn (Ví dụ: https://smartsun-edu.netlify.app) để khi bấm "Sao chép Link" sẽ tự tạo link online 24/7 gửi cho học sinh.</span>
+        </div>
+
+        <div style="margin-top: 16px;">
+          <label style="color: var(--cyan);">🔗 Google Sheet Web App URL (Để lưu kết quả bài làm):</label>
+          <input type="url" id="custom-sheet-url" placeholder="https://script.google.com/macros/s/.../exec" onchange="saveCustomSheetUrl(this.value)">
+          <span style="font-size:0.78rem; color:var(--text-muted);">Dán đường dẫn Apps Script Web App của Google Sheet cá nhân để xem điểm số nộp về Sheet của bạn.</span>
+        </div>
+
+        <div style="margin-top: 22px; display: flex; gap: 14px; flex-wrap: wrap;">
           <button class="btn" onclick="generateExams()">🔀 Tiến Hành Trộn Đề & Tạo Link Online</button>
-          <button class="btn btn-secondary" onclick="window.print()">🖨️ In / Xuất PDF Giấy (Sạch thông tin góc)</button>
+          <button class="btn btn-secondary" onclick="window.print()">🖨️ In / Xuất PDF Giấy Đề Thi</button>
         </div>
       </div>
 
@@ -384,45 +857,47 @@ Phần 3:
     <!-- KHU VỰC LÀM BÀI KIỂM TRA ONLINE (HỌC SINH) -->
     <div id="tab-online-test" class="tab-content">
       <div class="timer-sticky">
-        <div style="font-weight:700; font-size:1.1rem;" id="online-exam-title">BÀI KIỂM TRA ONLINE</div>
-        <div style="background: rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 8px; font-weight:800; font-size:1.2rem;" id="timer-display">⏱️ 45:00</div>
+        <div style="font-weight:700; font-size:1.1rem; display:flex; align-items:center; gap:10px;" id="online-exam-title">
+          <span class="pulse-dot"></span> BÀI KIỂM TRA ONLINE
+        </div>
+        <div style="background: rgba(6, 182, 212, 0.2); border: 1px solid var(--cyan); color: #fff; padding: 6px 16px; border-radius: var(--radius-md); font-weight:800; font-size:1.2rem; font-family:'JetBrains Mono';" id="timer-display">⏱️ 45:00</div>
       </div>
 
       <div class="card" id="student-info-card" style="max-width: 550px; margin: 20px auto;">
-        <h2 style="color: var(--primary); text-align: center;">📝 NHẬP THÔNG TIN THÍ SINH</h2>
-        <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Vui lòng điền đầy đủ thông tin để bắt đầu làm bài thi</p>
+        <h2 style="color: var(--cyan); justify-content: center; font-size: 1.3rem;">📝 THÔNG TIN THÍ SINH</h2>
+        <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 22px;">Vui lòng hoàn thành thông tin cá nhân để mở đề kiểm tra</p>
         
         <form onsubmit="confirmStudentInfo(event)">
           <div style="margin-bottom: 16px;">
-            <label>Họ và tên Học sinh (<span style="color:red;">*</span>):</label>
+            <label>Họ và tên Học sinh (<span style="color:var(--rose);">*</span>):</label>
             <input type="text" id="student-name" placeholder="Ví dụ: Nguyễn Văn A" required>
           </div>
-          <div style="margin-bottom: 20px;">
-            <label>Địa chỉ Email (<span style="color:red;">*</span>):</label>
+          <div style="margin-bottom: 24px;">
+            <label>Địa chỉ Email (<span style="color:var(--rose);">*</span>):</label>
             <input type="email" id="student-email" placeholder="Ví dụ: nguyenvana@gmail.com" required>
           </div>
-          <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px; font-size: 1.05rem;">🚀 Bắt Đầu Làm Bài</button>
+          <button type="submit" class="btn btn-success" style="width: 100%; padding: 14px; font-size: 1.05rem;">🚀 Bắt Đầu Làm Bài Ngay</button>
         </form>
       </div>
 
-      <div class="card" id="online-test-card" style="display: none;">
-        <div style="border-bottom: 2px solid var(--border); padding-bottom: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; background: #e0e7ff; padding: 12px; border-radius: 8px;">
+      <div class="card" id="online-test-card" style="display: none; background: #ffffff; color: #0f172a;">
+        <div style="border-bottom: 2px solid #e2e8f0; padding-bottom: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; background: #f1f5f9; padding: 14px; border-radius: 8px;">
           <div><b>Thí sinh:</b> <span id="display-student-name" style="color: var(--primary); font-weight: bold;"></span></div>
           <div><b>Email:</b> <span id="display-student-email" style="color: var(--primary); font-weight: bold;"></span></div>
         </div>
 
         <form id="online-test-form" onsubmit="submitOnlineTest(event)">
           <div id="online-questions-container"></div>
-          <button type="submit" class="btn btn-success" style="width:100%; padding: 14px; font-size: 1.1rem; margin-top:20px;">📤 NỘP BÀI KIỂM TRA</button>
+          <button type="submit" class="btn btn-success" style="width:100%; padding: 16px; font-size: 1.15rem; margin-top:24px;">📤 NỘP BÀI KIỂM TRA</button>
         </form>
       </div>
 
       <div class="card" id="online-result-card" style="display:none; text-align: center;">
-        <h1 style="color: var(--primary); font-size:2.2rem; margin-bottom: 10px;">🎉 ĐÃ HOÀN THÀNH BÀI THI</h1>
-        <p id="result-student-info" style="font-size: 1.1rem; font-weight: 600;"></p>
-        <div style="font-size: 3.5rem; font-weight: 800; color: var(--success); margin: 20px 0;" id="result-score">0 / 10</div>
-        <p id="result-detail-text" style="font-size: 1rem; color: var(--text-muted); margin-bottom: 10px;"></p>
-        <p style="color: #059669; font-weight: bold; margin-bottom: 20px;">✅ Kết quả đã được tự động lưu về hệ thống Google Sheets!</p>
+        <h1 style="color: var(--cyan); font-size:2.2rem; margin-bottom: 10px;">🎉 ĐÃ HOÀN THÀNH BÀI THI</h1>
+        <p id="result-student-info" style="font-size: 1.1rem; font-weight: 600; color: var(--text-main);"></p>
+        <div style="font-size: 3.8rem; font-weight: 800; color: var(--emerald); margin: 20px 0; font-family:'JetBrains Mono';" id="result-score">0 / 10</div>
+        <p id="result-detail-text" style="font-size: 1rem; color: var(--text-muted); margin-bottom: 14px;"></p>
+        <p style="color: var(--emerald); font-weight: bold; margin-bottom: 24px;">✅ Kết quả đã được tự động lưu về hệ thống Google Sheets!</p>
         <button class="btn btn-secondary" onclick="window.location.href = window.location.pathname">🏠 Quay lại Trang Chủ</button>
       </div>
     </div>
@@ -433,15 +908,15 @@ Phần 3:
   <div id="guide-modal" class="modal">
     <div class="modal-content">
       <span class="close-modal" onclick="closeGuideModal()">&times;</span>
-      <h3 style="margin-bottom: 16px; color: var(--primary);">📖 Cú Pháp Nhập Hàng Loạt Chuẩn 3 Phần (Cho Phép Nhiều Ảnh)</h3>
-      <pre style="background:#f8fafc; padding:14px; border-radius:8px; font-size:0.82rem; border:1px solid var(--border);">
+      <h3 style="margin-bottom: 16px; color: var(--cyan); font-size: 1.2rem;">📖 Cú Pháp Nhập Hàng Loạt Chuẩn 3 Phần</h3>
+      <pre style="background: rgba(0,0,0,0.5); padding: 16px; border-radius: var(--radius-md); font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; border: 1px solid var(--border-color); color: #a5f3fc; overflow-x: auto;">
 Môn: Địa Lý
 
 Phần 1: Trắc nghiệm
 Câu 1: Dựa vào các sơ đồ bên dưới:
 Ảnh 1: https://i.postimg.cc/link1.jpg
 Ảnh 2: https://i.postimg.cc/link2.jpg
-A. Thủ đô Hà Nội
+A. Thủ đồ Hà Nội
 B. TP.HCM
 C. Đà Nẵng
 D. Cần Thơ
@@ -469,18 +944,177 @@ Phần 3:
     </div>
   </div>
 
+  <!-- MODAL CHỈNH SỬA CÂU HỎI TOÀN DIỆN -->
+  <div id="edit-q-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" onclick="closeEditModal()">&times;</span>
+      <h3 style="margin-bottom: 16px; color: var(--cyan); font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
+        ✏️ Chỉnh Sửa Chi Tiết Câu Hỏi
+      </h3>
+      <form id="edit-q-form" onsubmit="saveEditedQuestion(event)">
+        <input type="hidden" id="edit-q-id">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px;">
+          <div>
+            <label>Môn học:</label>
+            <select id="edit-q-subject" required>
+              <option value="Lịch Sử">Lịch Sử</option><option value="Toán">Toán</option>
+              <option value="Vật Lý">Vật Lý</option><option value="Hóa Học">Hóa Học</option>
+              <option value="Địa Lý">Địa Lý</option><option value="Tin Học">Tin Học</option>
+            </select>
+          </div>
+          <div>
+            <label>Độ khó:</label>
+            <select id="edit-q-level" required>
+              <option value="Nhận biết">Nhận biết</option><option value="Thông hiểu">Thông hiểu</option><option value="Vận dụng">Vận dụng</option>
+            </select>
+          </div>
+        </div>
+
+        <label>Nội dung câu hỏi:</label>
+        <textarea id="edit-q-text" required></textarea>
+
+        <div id="edit-mcq-container" style="display: none; margin-top: 10px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div><label>Đáp án A:</label><input type="text" id="edit-optA"></div>
+            <div><label>Đáp án B:</label><input type="text" id="edit-optB"></div>
+            <div><label>Đáp án C:</label><input type="text" id="edit-optC"></div>
+            <div><label>Đáp án D:</label><input type="text" id="edit-optD"></div>
+          </div>
+          <label>Đáp án đúng:</label>
+          <select id="edit-correct-MCQ" style="width: 140px;">
+            <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
+          </select>
+        </div>
+
+        <div id="edit-tf-container" style="display: none; margin-top: 10px;">
+          <label style="margin-bottom: 8px;">Nội dung 4 ý & Đáp án Đúng/Sai:</label>
+          <div style="display: grid; gap: 10px;">
+            <div style="display: flex; gap: 8px;"><input type="text" id="edit-tf-a"><select id="edit-tf-ans-a" style="width:100px; margin:0;"><option value="Đúng">Đúng</option><option value="Sai">Sai</option></select></div>
+            <div style="display: flex; gap: 8px;"><input type="text" id="edit-tf-b"><select id="edit-tf-ans-b" style="width:100px; margin:0;"><option value="Đúng">Đúng</option><option value="Sai">Sai</option></select></div>
+            <div style="display: flex; gap: 8px;"><input type="text" id="edit-tf-c"><select id="edit-tf-ans-c" style="width:100px; margin:0;"><option value="Đúng">Đúng</option><option value="Sai">Sai</option></select></div>
+            <div style="display: flex; gap: 8px;"><input type="text" id="edit-tf-d"><select id="edit-tf-ans-d" style="width:100px; margin:0;"><option value="Đúng">Đúng</option><option value="Sai">Sai</option></select></div>
+          </div>
+        </div>
+
+        <div id="edit-short-container" style="display: none; margin-top: 10px;">
+          <label>Đáp án trả lời ngắn:</label>
+          <input type="text" id="edit-correct-SHORT">
+        </div>
+
+        <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Hủy</button>
+          <button type="submit" class="btn btn-success">💾 Cập Nhật Thay Đổi</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
-    // URL SHEET TÍCH HỢP MẶC ĐỊNH & CSV XÁC THỰC
-    const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzy3WmIUluAgIt1W8PSrHpZ4jQGL4tpjBO8weYgdGmAwFY3aZEVgDmCIwwoaAeGEV2O8Q/exec";
-    const AUTH_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRgxbErf7tBVABnMioAaZWLc_tCiXT1L9jlRPk9mTARyVo4ZO__mrQ1_-JwWcSmT4sYnPnWi2Kn7-1h/pub?output=csv";
+    const AUTH_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5caItjqvz4wVa5eZGFx_Tsm-8KM8ImX7ALjhGMesCS7jQF47W5WASJruFNfOKUxS1vO_OU_5twdpt/pub?output=csv";
 
     let questions = JSON.parse(localStorage.getItem('edu_v3_q')) || [];
+    let customSheetUrl = localStorage.getItem('edu_custom_sheet_url') || '';
+    let customDomainUrl = localStorage.getItem('edu_custom_domain_url') || '';
     let currentImageSrcs = [];
     let currentOnlineExamData = null;
     let timerInterval = null;
-    let currentTeacherIdInExam = "";
 
-    // Helper: Chuẩn hóa mảng ảnh (Hỗ trợ cấu trúc cũ lưu 1 chuỗi string & mới lưu Array)
+    // --- LOGIC ĐĂNG NHẬP DÒ TỰ ĐỘNG THIẾT BỊ ---
+    async function getDeviceId() {
+      if (window.pywebview && window.pywebview.api) {
+        if (window.pywebview.api.get_hwid) {
+          return await window.pywebview.api.get_hwid();
+        }
+        if (window.pywebview.api.get_device_id) {
+          return await window.pywebview.api.get_device_id();
+        }
+      }
+      let localDevId = localStorage.getItem('edu_sys_dev_id');
+      if (!localDevId) {
+        localDevId = 'DEV-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+        localStorage.setItem('edu_sys_dev_id', localDevId);
+      }
+      return localDevId;
+    }
+
+    function parseCSV(text) {
+      const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+      return lines.map(line => {
+        const parts = line.split(',');
+        return parts.map(p => p.replace(/^["']|["']$/g, '').trim());
+      });
+    }
+
+    async function autoVerifyDevice() {
+      const spinner = document.getElementById('auth-spinner');
+      const title = document.getElementById('auth-title');
+      const desc = document.getElementById('auth-desc');
+      const overlay = document.getElementById('auth-overlay');
+
+      try {
+        const deviceId = await getDeviceId();
+        const response = await fetch(AUTH_CSV_URL, { cache: 'no-store' });
+        if (!response.ok) throw new Error('Không thể tải dữ liệu xác thực');
+
+        const csvText = await response.text();
+        const rows = parseCSV(csvText);
+
+        let isValid = false;
+        let ownerName = '';
+
+        for (let i = 0; i < rows.length; i++) {
+          const row = rows[i];
+          const matchedDevice = row.find(cell => cell.toUpperCase() === deviceId.toUpperCase());
+          if (matchedDevice) {
+            const hasActiveKey = row.some(cell => cell.toUpperCase() === 'ACTIVE' || cell.toUpperCase() === 'TRUE' || cell.toUpperCase() === 'OK');
+            if (hasActiveKey || row.length >= 2) {
+              isValid = true;
+              ownerName = row[0] || 'Bản Quyền Hợp Lệ';
+              break;
+            }
+          }
+        }
+
+        if (isValid) {
+          const badgeEl = document.getElementById('license-badge-display');
+          if (badgeEl) {
+            badgeEl.innerHTML = `<span class="pulse-dot"></span> Thiết bị: <b style="color:var(--cyan);">${ownerName}</b>`;
+          }
+          overlay.style.display = 'none';
+        } else {
+          spinner.style.display = 'none';
+          title.style.color = 'var(--rose)';
+          title.innerText = '🚫 THIẾT BỊ CHƯA ĐƯỢC CẤP QUYỀN';
+          desc.innerHTML = `Mã thiết bị của bạn: <b style="color:var(--cyan); font-family:monospace;">${deviceId}</b><br><br>Vui lòng gửi mã này cho quản trị viên để kích hoạt bản quyền ứng dụng.`;
+        }
+      } catch (err) {
+        spinner.style.display = 'none';
+        title.style.color = 'var(--rose)';
+        title.innerText = '❌ LỖI XÁC THỰC BẢO MẬT';
+        desc.innerText = 'Không thể kết nối đến máy chủ xác thực. Vui lòng kiểm tra lại kết nối Internet.';
+      }
+    }
+
+    function saveCustomSheetUrl(val) {
+      customSheetUrl = val.trim();
+      localStorage.setItem('edu_custom_sheet_url', customSheetUrl);
+      showToast('✅ Đã lưu Google Sheet URL!');
+    }
+
+    function saveCustomDomainUrl(val) {
+      customDomainUrl = val.trim();
+      localStorage.setItem('edu_custom_domain_url', customDomainUrl);
+      showToast('✅ Đã lưu Tên miền Web công khai!');
+    }
+
+    function showToast(text) {
+      const el = document.getElementById('toast-msg');
+      if (!el) return;
+      el.innerText = text || '✅ Đã lưu thay đổi!';
+      el.style.display = 'block';
+      setTimeout(() => { el.style.display = 'none'; }, 2200);
+    }
+
     function parseImages(imgData) {
       if (!imgData) return [];
       if (Array.isArray(imgData)) return imgData;
@@ -494,50 +1128,87 @@ Phần 3:
       return `<div class="q-img-container">${imgsHtml}</div>`;
     }
 
-    // --- HỆ THỐNG XÁC THỰC MÃ THIẾT BỊ + KEY (SHEET) ---
-    function generateDeviceId() {
-      let nav = window.navigator;
-      let screen = window.screen;
-      let str = nav.userAgent + nav.language + screen.colorDepth + screen.width + screen.height;
-      let hash = 0;
-      for (let i = 0; i < str.length; i++) {
-        let char = str.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash |= 0;
-      }
-      return 'DEV-' + Math.abs(hash).toString(36).toUpperCase();
-    }
-
-    const currentDeviceId = generateDeviceId();
-
-    function initAuth() {
-      document.getElementById('auth-device-id').value = currentDeviceId;
+    /* XUẤT VÀ NHẬP FILE .JOIN */
+    function exportJoinFile() {
+      if (questions.length === 0) return alert('Ngân hàng câu hỏi hiện tại đang trống!');
+      const jsonContent = JSON.stringify(questions, null, 2);
       
-      // KIỂM TRA NẾU VÀO LINK BÀI THI ONLINE TRỰC TIẾP -> MỞ HOÀN TOÀN, KHÔNG HỎI KEY
-      if (window.location.hash.includes('#online-exam=')) {
-        document.getElementById('auth-overlay').style.display = 'none';
-        checkOnlineMode();
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.export_join_file) {
+        window.pywebview.api.export_join_file(jsonContent, `NganHangCauHoi_${Date.now()}.join`).then(res => {
+          if (res && res.success) {
+            alert('🎉 Đã xuất tệp .join thành công tại:\n' + res.path);
+          } else if (res && res.message && res.message !== "Đã hủy lưu file") {
+            alert('Lỗi xuất tệp: ' + res.message);
+          }
+        });
         return;
       }
 
-      // NẾU VÀO TRANG QUẢN TRỊ ĐỀ THI -> KIỂM TRA KEY THIẾT BỊ
-      const savedAuth = localStorage.getItem('edu_auth_granted');
-      if (savedAuth === currentDeviceId) {
-        document.getElementById('auth-overlay').style.display = 'none';
-      } else {
-        document.getElementById('auth-overlay').style.display = 'flex';
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(jsonContent);
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `NganHangCauHoi_${Date.now()}.join`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function triggerImportJoin() {
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.import_join_file) {
+        window.pywebview.api.import_join_file().then(res => {
+          if (res && res.success && res.content) {
+            try {
+              const importedQuestions = JSON.parse(res.content);
+              if (Array.isArray(importedQuestions)) {
+                questions = importedQuestions;
+                saveData();
+                alert(`🎉 Nhập tệp .join thành công! Đã tải ${questions.length} câu hỏi.`);
+              } else {
+                alert('File .join không đúng cấu trúc dữ liệu!');
+              }
+            } catch (err) {
+              alert('Lỗi định dạng nội dung file .join!');
+            }
+          } else if (res && res.message && res.message !== "Đã hủy chọn file") {
+            alert('Lỗi đọc tệp: ' + res.message);
+          }
+        });
+        return;
       }
+
+      document.getElementById('import-join-input').click();
+    }
+
+    function importJoinFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const importedQuestions = JSON.parse(e.target.result);
+          if (Array.isArray(importedQuestions)) {
+            questions = importedQuestions;
+            saveData();
+            alert(`🎉 Nhập tệp .join thành công! Đã tải ${questions.length} câu hỏi.`);
+          } else {
+            alert('File .join không đúng cấu trúc dữ liệu!');
+          }
+        } catch (err) {
+          alert('Có lỗi xảy ra khi đọc file .join!');
+        }
+      };
+      reader.readAsText(file);
     }
 
     function checkOnlineMode() {
       if (window.location.hash.includes('#online-exam=')) {
         try {
           const hashStr = window.location.hash.replace('#online-exam=', '');
-          const parts = hashStr.split('&teacherId=');
+          const parts = hashStr.split('&sheetUrl=');
           const encodedData = parts[0];
           
           if (parts[1]) {
-            currentTeacherIdInExam = decodeURIComponent(parts[1]);
+            customSheetUrl = decodeURIComponent(parts[1]);
           }
 
           const jsonString = decodeURIComponent(escape(atob(encodedData)));
@@ -549,74 +1220,29 @@ Phần 3:
       }
     }
 
-    function copyDeviceId() {
-      navigator.clipboard.writeText(currentDeviceId).then(() => alert('Đã chép Mã Thiết Bị: ' + currentDeviceId));
-    }
+    window.addEventListener('pywebviewready', autoVerifyDevice);
 
-    async function verifyDeviceAuth() {
-      const inputKey = document.getElementById('auth-key-input').value.trim();
-      const errorEl = document.getElementById('auth-error-msg');
-      errorEl.innerText = "⏳ Đang kết nối xác thực...";
-
-      if (!inputKey) {
-        errorEl.innerText = "Vui lòng nhập Key!";
-        return;
-      }
-
-      try {
-        const response = await fetch(AUTH_CSV_URL + '&t=' + Date.now());
-        const csvText = await response.text();
-        const lines = csvText.split('\n');
-        
-        let isValid = false;
-        for (let line of lines) {
-          let cols = line.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
-          if (cols.length >= 2) {
-            let devIdInSheet = cols[0];
-            let keyInSheet = cols[1];
-            
-            if (devIdInSheet === currentDeviceId && keyInSheet === inputKey) {
-              isValid = true;
-              break;
-            }
-          }
-        }
-
-        if (isValid) {
-          localStorage.setItem('edu_auth_granted', currentDeviceId);
-          document.getElementById('auth-overlay').style.display = 'none';
-          alert('✅ Xác thực thiết bị thành công!');
-        } else {
-          errorEl.innerText = "❌ Mã thiết bị hoặc Key không đúng! Vui lòng kiểm tra lại.";
-        }
-      } catch (err) {
-        console.error(err);
-        errorEl.innerText = "⚠️ Lỗi kết nối Google Sheet xác thực!";
-      }
-    }
-
-    function logoutDevice() {
-      if (confirm('Bạn có chắc muốn đăng xuất khỏi thiết bị này?')) {
-        localStorage.removeItem('edu_auth_granted');
-        location.reload();
-      }
-    }
-
-    // --- KHỞI TẠO VÀ LÀM BÀI ---
     window.addEventListener('DOMContentLoaded', () => {
-      initAuth();
+      const sheetInput = document.getElementById('custom-sheet-url');
+      if (sheetInput && customSheetUrl) sheetInput.value = customSheetUrl;
+      const domainInput = document.getElementById('custom-domain-url');
+      if (domainInput && customDomainUrl) domainInput.value = customDomainUrl;
+      checkOnlineMode();
+      renderQuestions();
+      autoVerifyDevice();
     });
 
-    function saveData() {
+    function saveData(quiet = false) {
       localStorage.setItem('edu_v3_q', JSON.stringify(questions));
       renderQuestions();
+      if (quiet) showToast('✅ Đã cập nhật đáp án đúng!');
     }
 
     function switchTab(tabId, evt) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
       document.getElementById(tabId).classList.add('active');
-      if(evt) evt.target.classList.add('active');
+      if(evt && evt.target) evt.target.classList.add('active');
     }
 
     function toggleFormType(type) {
@@ -659,6 +1285,104 @@ Phần 3:
     function openGuideModal() { document.getElementById('guide-modal').style.display = 'block'; }
     function closeGuideModal() { document.getElementById('guide-modal').style.display = 'none'; }
 
+    function updateCorrectMCQ(qId, key) {
+      let q = questions.find(item => item.id === qId);
+      if (q) {
+        q.correct = key;
+        saveData(true);
+      }
+    }
+
+    function updateCorrectTF(qId, itemIdx, val) {
+      let q = questions.find(item => item.id === qId);
+      if (q && q.items && q.items[itemIdx]) {
+        q.items[itemIdx].ans = val;
+        saveData(true);
+      }
+    }
+
+    function updateCorrectSHORT(qId, val) {
+      let q = questions.find(item => item.id === qId);
+      if (q) {
+        q.correct = val.trim();
+        saveData(true);
+      }
+    }
+
+    function openEditModal(qId) {
+      let q = questions.find(item => item.id === qId);
+      if (!q) return;
+
+      document.getElementById('edit-q-id').value = q.id;
+      document.getElementById('edit-q-subject').value = q.subject || 'Địa Lý';
+      document.getElementById('edit-q-level').value = q.level || 'Thông hiểu';
+      document.getElementById('edit-q-text').value = q.text || '';
+
+      document.getElementById('edit-mcq-container').style.display = 'none';
+      document.getElementById('edit-tf-container').style.display = 'none';
+      document.getElementById('edit-short-container').style.display = 'none';
+
+      if (q.type === 'MCQ') {
+        document.getElementById('edit-mcq-container').style.display = 'block';
+        document.getElementById('edit-optA').value = q.options ? q.options.A || '' : '';
+        document.getElementById('edit-optB').value = q.options ? q.options.B || '' : '';
+        document.getElementById('edit-optC').value = q.options ? q.options.C || '' : '';
+        document.getElementById('edit-optD').value = q.options ? q.options.D || '' : '';
+        document.getElementById('edit-correct-MCQ').value = q.correct || 'A';
+      } else if (q.type === 'TF') {
+        document.getElementById('edit-tf-container').style.display = 'block';
+        if (q.items && q.items.length >= 4) {
+          document.getElementById('edit-tf-a').value = q.items[0].text; document.getElementById('edit-tf-ans-a').value = q.items[0].ans;
+          document.getElementById('edit-tf-b').value = q.items[1].text; document.getElementById('edit-tf-ans-b').value = q.items[1].ans;
+          document.getElementById('edit-tf-c').value = q.items[2].text; document.getElementById('edit-tf-ans-c').value = q.items[2].ans;
+          document.getElementById('edit-tf-d').value = q.items[3].text; document.getElementById('edit-tf-ans-d').value = q.items[3].ans;
+        }
+      } else if (q.type === 'SHORT') {
+        document.getElementById('edit-short-container').style.display = 'block';
+        document.getElementById('edit-correct-SHORT').value = q.correct || '';
+      }
+
+      document.getElementById('edit-q-modal').style.display = 'block';
+    }
+
+    function closeEditModal() {
+      document.getElementById('edit-q-modal').style.display = 'none';
+    }
+
+    function saveEditedQuestion(e) {
+      e.preventDefault();
+      let qId = parseFloat(document.getElementById('edit-q-id').value);
+      let q = questions.find(item => item.id === qId);
+      if (!q) return;
+
+      q.subject = document.getElementById('edit-q-subject').value;
+      q.level = document.getElementById('edit-q-level').value;
+      q.text = document.getElementById('edit-q-text').value;
+
+      if (q.type === 'MCQ') {
+        q.options = {
+          A: document.getElementById('edit-optA').value,
+          B: document.getElementById('edit-optB').value,
+          C: document.getElementById('edit-optC').value,
+          D: document.getElementById('edit-optD').value
+        };
+        q.correct = document.getElementById('edit-correct-MCQ').value;
+      } else if (q.type === 'TF') {
+        q.items = [
+          { text: document.getElementById('edit-tf-a').value, ans: document.getElementById('edit-tf-ans-a').value },
+          { text: document.getElementById('edit-tf-b').value, ans: document.getElementById('edit-tf-ans-b').value },
+          { text: document.getElementById('edit-tf-c').value, ans: document.getElementById('edit-tf-ans-c').value },
+          { text: document.getElementById('edit-tf-d').value, ans: document.getElementById('edit-tf-ans-d').value }
+        ];
+      } else if (q.type === 'SHORT') {
+        q.correct = document.getElementById('edit-correct-SHORT').value;
+      }
+
+      saveData();
+      closeEditModal();
+      showToast('🎉 Đã cập nhật câu hỏi thành công!');
+    }
+
     function saveQuestion(e) {
       e.preventDefault();
       const type = document.getElementById('q-type').value;
@@ -689,11 +1413,12 @@ Phần 3:
       saveData();
       document.getElementById('add-q-form').reset();
       clearImage();
-      alert('Đã lưu câu hỏi!');
+      showToast('💾 Đã lưu câu hỏi mới vào ngân hàng!');
     }
 
     function renderQuestions() {
       const listEl = document.getElementById('q-list');
+      if (!listEl) return;
       listEl.innerHTML = '';
       const filterSub = document.getElementById('filter-subject').value;
       let filteredList = filterSub !== 'Tất cả' ? questions.filter(q => q.subject === filterSub) : questions;
@@ -701,28 +1426,88 @@ Phần 3:
       document.getElementById('q-count').innerText = `${filteredList.length} / Tổng ${questions.length}`;
 
       if (filteredList.length === 0) {
-        listEl.innerHTML = `<div style="text-align:center; color: var(--text-muted); padding:24px;">Không có câu hỏi nào</div>`;
+        listEl.innerHTML = `<div style="text-align:center; color: var(--text-muted); padding:32px; background: rgba(0,0,0,0.2); border-radius: var(--radius-md);">Chưa có câu hỏi nào trong danh mục này</div>`;
         return;
       }
 
       filteredList.forEach((q, idx) => {
         const item = document.createElement('div');
         item.className = 'q-item';
-        let detail = q.type === 'MCQ' ? `A. ${q.options.A} | B. ${q.options.B} | C. ${q.options.C} | D. ${q.options.D} <br><b>ĐA: ${q.correct}</b>` : 
-                    (q.type === 'TF' ? q.items.map((it, i) => `Ý ${String.fromCharCode(97+i)}: ${it.text} (${it.ans})`).join(' | ') : `<b>Đáp án:</b> ${q.correct}`);
+        
+        let detailHtml = '';
+        let answerEditorHtml = '';
+
+        if (q.type === 'MCQ') {
+          detailHtml = `
+            <div style="margin-top:6px; display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:6px;">
+              <div><b>A.</b> ${q.options ? q.options.A || '' : ''}</div>
+              <div><b>B.</b> ${q.options ? q.options.B || '' : ''}</div>
+              <div><b>C.</b> ${q.options ? q.options.C || '' : ''}</div>
+              <div><b>D.</b> ${q.options ? q.options.D || '' : ''}</div>
+            </div>
+          `;
+          answerEditorHtml = `
+            <div class="ans-edit-box">
+              <span class="ans-edit-title">🎯 Đổi đáp án đúng:</span>
+              <div class="mcq-btn-group">
+                ${['A', 'B', 'C', 'D'].map(k => `
+                  <button type="button" class="mcq-opt-btn ${q.correct === k ? 'active' : ''}" onclick="updateCorrectMCQ(${q.id}, '${k}')">${k}</button>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        } else if (q.type === 'TF') {
+          detailHtml = `<div style="margin-top:6px;">${q.items ? q.items.map((it, i) => `Ý <b>${String.fromCharCode(97+i)})</b> ${it.text}`).join(' | ') : ''}</div>`;
+          answerEditorHtml = `
+            <div class="ans-edit-box" style="flex-direction: column; align-items: flex-start;">
+              <span class="ans-edit-title">🎯 Sửa đáp án Đúng / Sai từng ý:</span>
+              <div class="tf-edit-grid">
+                ${q.items ? q.items.map((it, i) => `
+                  <div class="tf-edit-item">
+                    <span><b>${String.fromCharCode(97+i)})</b> ${it.text.substring(0, 22)}${it.text.length > 22 ? '...' : ''}</span>
+                    <select class="tf-select" onchange="updateCorrectTF(${q.id}, ${i}, this.value)">
+                      <option value="Đúng" ${it.ans === 'Đúng' ? 'selected' : ''}>Đúng</option>
+                      <option value="Sai" ${it.ans === 'Sai' ? 'selected' : ''}>Sai</option>
+                    </select>
+                  </div>
+                `).join('') : ''}
+              </div>
+            </div>
+          `;
+        } else if (q.type === 'SHORT') {
+          detailHtml = `<div style="margin-top:6px; color: var(--text-muted);">Loại câu hỏi trả lời ngắn</div>`;
+          answerEditorHtml = `
+            <div class="ans-edit-box">
+              <span class="ans-edit-title">🎯 Sửa kết quả đáp án:</span>
+              <input type="text" value="${q.correct || ''}" onchange="updateCorrectSHORT(${q.id}, this.value)" style="padding: 6px 12px; margin:0; width: 220px; font-weight:700; color:var(--cyan); background:rgba(0,0,0,0.4);" placeholder="Nhập đáp án đúng...">
+              <span style="font-size:0.75rem; color:var(--text-muted);">(Tự động lưu khi gõ xong)</span>
+            </div>
+          `;
+        }
+
         let imgTag = renderImageHtml(q.image);
 
         item.innerHTML = `
-          <input type="checkbox" class="q-checkbox" value="${q.id}" style="width:18px; height:18px; margin-top:4px;">
+          <input type="checkbox" class="q-checkbox" value="${q.id}" style="width:18px; height:18px; margin-top:4px; cursor:pointer;">
           <div class="q-content">
-            <div><span class="q-badge">${q.subject}</span> <strong>Câu ${idx + 1}:</strong> ${q.text}</div>
+            <div>
+              <span class="q-badge">${q.subject}</span>
+              <span class="q-badge-level">${q.level}</span>
+              <strong>Câu ${idx + 1}:</strong> ${q.text}
+            </div>
             ${imgTag}
-            <div style="font-size:0.88rem; color:#475569; margin-top:6px;">${detail}</div>
+            <div style="font-size:0.88rem; color:var(--text-muted); line-height:1.5;">${detailHtml}</div>
+            ${answerEditorHtml}
           </div>
-          <button class="btn btn-danger" style="padding:4px 10px; font-size:0.78rem;" onclick="deleteQuestion(${q.id})">Xóa</button>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <button class="btn btn-secondary" style="padding:6px 12px; font-size:0.78rem;" onclick="openEditModal(${q.id})" title="Sửa nội dung & chi tiết">✏️ Sửa</button>
+            <button class="btn btn-danger" style="padding:6px 12px; font-size:0.78rem;" onclick="deleteQuestion(${q.id})">❌ Xóa</button>
+          </div>
         `;
         listEl.appendChild(item);
       });
+
+      if (window.renderMathInElement) renderMathInElement(listEl);
     }
 
     function toggleSelectAll(btn) {
@@ -742,7 +1527,12 @@ Phần 3:
       }
     }
 
-    function deleteQuestion(id) { questions = questions.filter(q => q.id !== id); saveData(); }
+    function deleteQuestion(id) { 
+      if (confirm('Bạn có chắc chắn muốn xóa câu hỏi này?')) {
+        questions = questions.filter(q => q.id !== id); 
+        saveData(); 
+      }
+    }
 
     function processBulkImportNew() {
       let rawText = document.getElementById('bulk-text').value.replace(/\r\n/g, '\n');
@@ -804,7 +1594,7 @@ Phần 3:
         });
       }
       saveData();
-      alert(`Đã trích xuất & lưu ${count} câu hỏi!`);
+      alert(`Đã trích xuất & lưu thành công ${count} câu hỏi! Vui lòng kiểm tra lại đáp án trong Ngân Hàng.`);
       switchTab('tab-qbank');
     }
 
@@ -827,7 +1617,7 @@ Phần 3:
       outputEl.innerHTML = '';
 
       let pool = selectedSubject !== 'Tất cả' ? questions.filter(q => q.subject === selectedSubject) : questions;
-      if (pool.length === 0) return alert('Không có câu hỏi!');
+      if (pool.length === 0) return alert('Không có câu hỏi phù hợp!');
 
       for (let i = 0; i < numCodes; i++) {
         const code = startCode + i;
@@ -840,12 +1630,12 @@ Phần 3:
           code: code,
           duration: duration,
           mcq: mcqPool.map(q => {
-            let keys = ['A', 'B', 'C', 'D'], vals = [q.options.A, q.options.B, q.options.C, q.options.D];
+            let keys = ['A', 'B', 'C', 'D'], vals = [q.options ? q.options.A : '', q.options ? q.options.B : '', q.options ? q.options.C : '', q.options ? q.options.D : ''];
             let idxs = [0, 1, 2, 3].sort(() => Math.random() - 0.5);
             let shuffledOpts = {}, correctKey = '';
             idxs.forEach((origIdx, newIdx) => {
               shuffledOpts[keys[newIdx]] = vals[origIdx];
-              if (vals[origIdx] === q.options[q.correct]) correctKey = keys[newIdx];
+              if (q.options && vals[origIdx] === q.options[q.correct]) correctKey = keys[newIdx];
             });
             return { text: q.text, image: parseImages(q.image), opts: shuffledOpts, correct: correctKey };
           }),
@@ -854,15 +1644,21 @@ Phần 3:
         };
 
         let base64Data = btoa(unescape(encodeURIComponent(JSON.stringify(onlinePayload))));
+        let baseDomain = customDomainUrl ? customDomainUrl : `${window.location.origin}${window.location.pathname}`;
+        if (customDomainUrl && !baseDomain.endsWith('/') && !baseDomain.endsWith('.html')) {
+          baseDomain += '/';
+        }
+        let onlineUrl = `${baseDomain}#online-exam=${base64Data}`;
         
-        // ĐÍNH KÈM TEACHER ID VÀO LINK LÀM BÀI ĐỂ PHÂN LUỒNG BẢNG ĐIỂM
-        let onlineUrl = `${window.location.origin}${window.location.pathname}#online-exam=${base64Data}&teacherId=${encodeURIComponent(currentDeviceId)}`;
+        if (customSheetUrl) {
+          onlineUrl += `&sheetUrl=${encodeURIComponent(customSheetUrl)}`;
+        }
 
         let examHtml = `
           <div class="exam-paper">
-            <div class="no-print" style="background: #e0e7ff; padding: 12px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-              <div><b>MÃ ĐỀ THI: ${code}</b> | Chia sẻ link làm bài trực tuyến (Mở tự do):</div>
-              <button class="btn btn-success" onclick="copyToClipboard('${onlineUrl}')">🔗 Sao chép Link Online Mã Đề ${code}</button>
+            <div class="no-print" style="background: rgba(99, 102, 241, 0.1); border: 1px solid var(--primary-glow); padding: 14px; border-radius: var(--radius-md); margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+              <div><b style="color:var(--primary);">MÃ ĐỀ THI: ${code}</b> | Chia sẻ link làm bài trực tuyến cho học sinh:</div>
+              <button class="btn btn-success" onclick="copyToClipboard('${onlineUrl}')">🔗 Sao chép Link Online Mã ${code}</button>
             </div>
 
             <div class="exam-header-grid">
@@ -892,7 +1688,7 @@ Phần 3:
           examHtml += `<div class="part-title">PHẦN II. Trắc nghiệm Đúng / Sai</div>`;
           onlinePayload.tf.forEach((q, idx) => {
             let imgTag = renderImageHtml(q.image);
-            let tfHtml = q.items.map((it, i) => `<div>${String.fromCharCode(97+i)}) ${it.text} [ Đúng / Sai ]</div>`).join('');
+            let tfHtml = q.items ? q.items.map((it, i) => `<div>${String.fromCharCode(97+i)}) ${it.text} [ Đúng / Sai ]</div>`).join('') : '';
             examHtml += `<div class="exam-q"><strong>Câu ${idx + 1}:</strong> ${q.text}${imgTag}<div style="margin-left:20px;">${tfHtml}</div></div>`;
           });
         }
@@ -976,13 +1772,13 @@ Phần 3:
         container.innerHTML += `<div class="part-title">PHẦN II. Trắc nghiệm Đúng / Sai</div>`;
         data.tf.forEach((q, idx) => {
           let imgTag = renderImageHtml(q.image);
-          let itemsHtml = q.items.map((it, i) => `
-            <div style="margin-top:8px; display:flex; align-items:center; gap:14px; background:#f8fafc; padding:8px 12px; border-radius:8px;">
+          let itemsHtml = q.items ? q.items.map((it, i) => `
+            <div style="margin-top:8px; display:flex; align-items:center; gap:14px; background:#f8fafc; padding:10px 14px; border-radius:8px;">
               <span style="flex:1;"><b>${String.fromCharCode(97+i)})</b> ${it.text}</span>
               <label><input type="radio" name="tf_${idx}_${i}" value="Đúng"> Đúng</label>
               <label><input type="radio" name="tf_${idx}_${i}" value="Sai"> Sai</label>
             </div>
-          `).join('');
+          `).join('') : '';
           container.innerHTML += `<div class="exam-q" style="margin-bottom:20px;"><strong>Câu ${idx + 1}:</strong> ${q.text}${imgTag}${itemsHtml}</div>`;
         });
       }
@@ -994,7 +1790,7 @@ Phần 3:
           container.innerHTML += `
             <div class="exam-q" style="margin-bottom:20px;">
               <strong>Câu ${idx + 1}:</strong> ${q.text}${imgTag}
-              <input type="text" name="short_${idx}" placeholder="Nhập đáp án..." style="margin-top:8px;">
+              <input type="text" name="short_${idx}" placeholder="Nhập đáp án..." style="margin-top:8px; background:#f8fafc; color:#0f172a; border-color:#cbd5e1;">
             </div>
           `;
         });
@@ -1003,7 +1799,6 @@ Phần 3:
       if (window.renderMathInElement) renderMathInElement(container);
     }
 
-    // --- TỰ ĐỘNG TRA CỨU BẢNG ĐIỂM CỦA GIÁO VIÊN VÀ NỘP BÀI ---
     async function submitOnlineTest(e) {
       if(e) e.preventDefault();
       clearInterval(timerInterval);
@@ -1023,11 +1818,13 @@ Phần 3:
 
       if (currentOnlineExamData.tf) {
         currentOnlineExamData.tf.forEach((q, idx) => {
-          q.items.forEach((it, i) => {
-            totalQuestions++;
-            const selected = document.querySelector(`input[name="tf_${idx}_${i}"]:checked`);
-            if (selected && selected.value === it.ans) correctAnswers++;
-          });
+          if (q.items) {
+            q.items.forEach((it, i) => {
+              totalQuestions++;
+              const selected = document.querySelector(`input[name="tf_${idx}_${i}"]:checked`);
+              if (selected && selected.value === it.ans) correctAnswers++;
+            });
+          }
         });
       }
 
@@ -1048,34 +1845,14 @@ Phần 3:
         examTitle: `${currentOnlineExamData.title} (Mã đề: ${currentOnlineExamData.code})`
       };
 
-      // PHÂN LUỒNG SHEET GOOGLE
-      let targetSubmitApi = GOOGLE_SHEET_API_URL; // Mặc định nếu không tìm thấy GV
-
-      if (currentTeacherIdInExam) {
-        try {
-          const resp = await fetch(AUTH_CSV_URL + '&t=' + Date.now());
-          const csvText = await resp.text();
-          const lines = csvText.split('\n');
-          for (let line of lines) {
-            let cols = line.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
-            // Cột A: Teacher ID | Cột B: Key | Cột C: URL Sheet API
-            if (cols.length >= 3 && cols[0] === currentTeacherIdInExam && cols[2].startsWith('http')) {
-              targetSubmitApi = cols[2];
-              break;
-            }
-          }
-        } catch (err) {
-          console.error("Lỗi tra cứu Google Sheet GV:", err);
-        }
+      if (customSheetUrl) {
+        fetch(customSheetUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        }).catch(err => console.error("Lỗi gửi điểm về Google Sheets:", err));
       }
-
-      // Gửi điểm về Sheet
-      fetch(targetSubmitApi, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      }).catch(err => console.error("Lỗi gửi điểm về Google Sheets:", err));
 
       document.getElementById('online-test-card').style.display = 'none';
       document.getElementById('online-result-card').style.display = 'block';
@@ -1083,8 +1860,6 @@ Phần 3:
       document.getElementById('result-score').innerText = `${score} / 10 ĐIỂM`;
       document.getElementById('result-detail-text').innerText = `Bạn đã trả lời đúng ${correctAnswers} / ${totalQuestions} ý/câu hỏi.`;
     }
-
-    renderQuestions();
   </script>
 </body>
 </html>
