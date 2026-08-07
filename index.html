@@ -47,7 +47,23 @@
       --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.15);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; }
+    /* KHÓA CHỌN VĂN BẢN (CHỐNG SAO CHÉP) */
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      -webkit-user-select: none; /* Safari */
+      -ms-user-select: none; /* IE 10+ */
+      user-select: none; /* Chống bôi đen text */
+    }
+
+    /* Cho phép gõ chữ trong input và textarea */
+    input, textarea {
+      -webkit-user-select: auto !important;
+      -ms-user-select: auto !important;
+      user-select: auto !important;
+    }
     
     body { 
       background-color: var(--bg-dark); 
@@ -1010,6 +1026,52 @@ Phần 3:
   </div>
 
   <script>
+    // --- LỚP BẢO VỆ CHỐNG SAO CHÉP & CHỐNG XEM NGUỒN TRANG ---
+    // 1. Chống Chuột phải
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+      return false;
+    });
+
+    // 2. Chặn các Phím Tắt Soi Mã Nguồn & Bôi đen Sao chép (F12, Ctrl+U, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+C, Ctrl+S)
+    document.addEventListener('keydown', function(e) {
+      // F12
+      if (e.keyCode === 123) {
+        e.preventDefault();
+        return false;
+      }
+      // Ctrl+Shift+I (DevTools) / Ctrl+Shift+J (Console) / Ctrl+Shift+C
+      if (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) {
+        e.preventDefault();
+        return false;
+      }
+      // Ctrl+U (Xem nguồn trang)
+      if (e.ctrlKey && e.keyCode === 85) {
+        e.preventDefault();
+        return false;
+      }
+      // Ctrl+S (Lưu trang)
+      if (e.ctrlKey && e.keyCode === 83) {
+        e.preventDefault();
+        return false;
+      }
+      // Ctrl+C (Sao chép) - ngoại trừ gõ trong input/textarea
+      if (e.ctrlKey && e.keyCode === 67 && !['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // 3. Tự động kiểm tra & vô hiệu hóa nếu cố tình mở DevTools
+    setInterval(function() {
+      const startTime = performance.now();
+      debugger; // Tự ngắt luồng thực thi nếu DevTools đang mở
+      const endTime = performance.now();
+      if (endTime - startTime > 100) {
+        document.body.innerHTML = '<h1 style="color:white; text-align:center; margin-top:20%;">⚠️ PHÁT HIỆN HÀNH VI XEM NGUỒN TRANG - TRUY CẬP BỊ CHẶN!</h1>';
+      }
+    }, 1000);
+
     const AUTH_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5caItjqvz4wVa5eZGFx_Tsm-8KM8ImX7ALjhGMesCS7jQF47W5WASJruFNfOKUxS1vO_OU_5twdpt/pub?output=csv";
 
     let questions = JSON.parse(localStorage.getItem('edu_v3_q')) || [];
